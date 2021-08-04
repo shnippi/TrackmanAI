@@ -16,8 +16,6 @@ sd = [0, 0, 0, 0, 0, 0, 0, 1, 0]
 nk = [0, 0, 0, 0, 0, 0, 0, 0, 1]
 
 starting_value = 1
-
-
 file_name = 'E:/code/Python/Trackmania-RL/data/training_data-{}.npy'.format(starting_value)
 
 if os.path.isfile(file_name):
@@ -27,13 +25,12 @@ else:
     print('File does not exist, starting fresh!', starting_value)
 
 
-
 def keys_to_output(keys):
-    '''
+    """
     Convert keys to a ...multi-hot... array
      0  1  2  3  4   5   6   7    8
     [W, S, A, D, WA, WD, SA, SD, NOKEY] boolean values.
-    '''
+    """
     output = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     if 'W' in keys and 'A' in keys:
@@ -58,8 +55,6 @@ def keys_to_output(keys):
 
 
 def main(file_name, starting_value):
-    file_name = file_name
-    starting_value = starting_value
     training_data = []
     for i in list(range(3))[::-1]:
         print(i + 1)
@@ -84,7 +79,9 @@ def main(file_name, starting_value):
 
             # print('loop took {} seconds'.format(time.time() - last_time))
             last_time = time.time()
-            cv2.imshow('window',cv2.resize(screen,(640,360)))
+            cv2.imshow('window', cv2.resize(screen, (640, 360)))
+
+            # display recorded stream
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
                 break
