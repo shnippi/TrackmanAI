@@ -1,9 +1,9 @@
 import numpy as np
-from grabscreen import grab_screen
 import cv2
 import time
 from getkeys import key_check
 import os
+from mss import mss
 
 # TODO: trackmania settings on 800x600
 
@@ -19,6 +19,7 @@ nk = [0, 0, 0, 0, 0, 0, 0, 0, 1]
 
 starting_value = 0
 
+
 # starting from the file we left off
 # while True:
 #     if os.path.isfile('E:/code/Python/Trackmania-RL/data/train/training_data-{}.npy'.format(starting_value)):
@@ -26,6 +27,35 @@ starting_value = 0
 #     else:
 #         print('Starting from file: ', starting_value)
 #         break
+
+def grab_screen(monitor_nr=1):
+
+    if monitor_nr == 1:
+        mon = {'left': 0, 'top': 250, 'width': 790, 'height': 350}
+
+        with mss() as sct:
+            img = np.array(sct.grab(mon))
+            return cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+
+
+    else:
+        with mss() as sct:
+            # Get information of monitor 2
+            monitor_number = monitor_nr
+            mon = sct.monitors[monitor_number]
+
+            # The screen part to capture
+            monitor = {
+                "top": mon["top"] + 300,  # 100px from the top
+                "left": mon["left"] + 400,  # 100px from the left
+                "width": 2200,
+                "height": 1200,
+                "mon": monitor_number,
+            }
+
+            # Grab the data
+            img = np.array(sct.grab(monitor))
+            return cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
 
 
 def main(starting_value):
@@ -39,22 +69,19 @@ def main(starting_value):
     while True:
 
         if not paused:
-            screen = grab_screen()
+            screen = grab_screen(monitor_nr=2)
             # resize to something a bit more acceptable for a CNN
             screen = cv2.resize(screen, (250, 250))
             screen = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
             training_data.append(screen)
-
 
             # # run a color convert:
             # screen = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
             # keys = key_check()
             # output = keys_to_output(keys)
             # training_data.append(screen)
-            #
-            # # print('loop took {} seconds'.format(time.time() - last_time))
-            # last_time = time.time()
-            # cv2.imshow('window', cv2.resize(screen, (500, 500)))
+
+            cv2.imshow('window', cv2.resize(screen, (500, 500)))
 
             # display recorded stream
             if cv2.waitKey(25) & 0xFF == ord('q'):
