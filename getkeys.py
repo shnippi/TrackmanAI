@@ -11,5 +11,4 @@ def key_check():
     for key in keyList:
         if ctypes.windll.user32.GetAsyncKeyState(ord(key)):
             keys.append(key)
-    print(keys)
     return keys
