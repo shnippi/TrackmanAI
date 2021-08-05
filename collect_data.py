@@ -57,9 +57,9 @@ def keys_to_output(keys):
 
 def main(starting_value):
     training_data = []
-    for i in list(range(3))[::-1]:
-        print(i + 1)
-        time.sleep(1)
+    # for i in list(range(3))[::-1]:
+    #     print(i + 1)
+    #     time.sleep(1)
 
     paused = False
     print('STARTING!!!')
@@ -68,8 +68,8 @@ def main(starting_value):
         if not paused:
             screen = grab_screen()
             # resize to something a bit more acceptable for a CNN
-            screen = cv2.resize(screen, (480, 270))
-            # screen = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
+            screen = cv2.resize(screen, (240, 140))
+            screen = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
             training_data.append(screen)
 
 

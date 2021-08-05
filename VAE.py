@@ -15,7 +15,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 batch_size = 64
 learning_rate = 1e-3
-num_epochs = 10
+num_epochs = 100
 height = 270
 width = 480
 
@@ -42,29 +42,41 @@ test_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffl
 
 
 class VAE(nn.Module):
-    def __init__(self, imgChannels=1, featureDim=32 * 20 * 20, zDim=64):
+    # TODO: fix the padding
+    def __init__(self, imgChannels=1, featureDim=32 * 16 * 28, zDim=64):
         super(VAE, self).__init__()
 
+        self.pool = nn.MaxPool2d(kernel_size=(2, 2), stride=2, return_indices=True)
+        self.unpool = nn.MaxUnpool2d(kernel_size=(2, 2), stride=2)
+
+        self.index1 = None
+        self.index2 = None
+
         # Initializing the 2 convolutional layers and 2 full-connected layers for the encoder
-        self.encConv1 = nn.Conv2d(imgChannels, 16, 5)
-        self.encConv2 = nn.Conv2d(16, 32, 5)
+        self.encConv1 = nn.Conv2d(imgChannels, 16, 5, stride=2)
+        self.encConv2 = nn.Conv2d(16, 32, 5, stride=2)
         self.encFC1 = nn.Linear(featureDim, zDim)
         self.encFC2 = nn.Linear(featureDim, zDim)
 
         # Initializing the fully-connected layer and 2 convolutional layers for decoder
         self.decFC1 = nn.Linear(zDim, featureDim)
-        self.decConv1 = nn.ConvTranspose2d(32, 16, 5)
-        self.decConv2 = nn.ConvTranspose2d(16, imgChannels, 5)
+        self.decConv1 = nn.ConvTranspose2d(32, 16, 5, stride=2, output_padding=1)
+        self.decConv2 = nn.ConvTranspose2d(16, imgChannels, 5, stride=2, output_padding=1)
 
     def encoder(self, x):
         # Input is fed into 2 convolutional layers sequentially
         # The output feature map are fed into 2 fully-connected layers to predict mean (mu) and variance (logVar)
         # Mu and logVar are used for generating middle representation z and KL divergence loss
+        # print(x.shape)
+
         x = F.relu(self.encConv1(x))
-        print(x.shape)
-        x = F.relu(self.encConv2(x))
-        print(x.shape)
-        x = x.view(-1, 32 * 20 * 20)
+        # print(x.shape)
+
+        x, self.index1 = self.pool(self.encConv2(x))
+        x = F.relu(x)
+        # print(x.shape)
+
+        x = x.view(-1, 32 * 16 * 28)
         mu = self.encFC1(x)
         logVar = self.encFC2(x)
         return mu, logVar
@@ -79,9 +91,15 @@ class VAE(nn.Module):
         # z is fed back into a fully-connected layers and then into two transpose convolutional layers
         # The generated output is the same size of the original input
         x = F.relu(self.decFC1(z))
-        x = x.view(-1, 32, 20, 20)
-        x = F.relu(self.decConv1(x))
+        x = x.view(-1, 32, 16, 28)
+        # print(x.shape)
+        x = F.relu(self.decConv1(self.unpool(x, self.index1)))
+        # print(x.shape)
         x = torch.sigmoid(self.decConv2(x))
+        # print(x.shape)
+
+        # TODO: this abomination
+        x = F.pad(x, (2, 2), "constant", 0)
         return x
 
     def forward(self, x):
@@ -114,11 +132,11 @@ for epoch in range(num_epochs):
 
         # plt.imshow(imgs[0][0].to("cpu"), "gray")
         # plt.show()
-        print(imgs.shape)
+        # print(imgs.shape)
 
         # iterate over batch
         for batch in torch.split(imgs, batch_size):
-            print(batch.shape)
+            # print(batch.shape)
 
             # Feeding a batch of images into the network to obtain the output image, mu, and logVar
             out, mu, logVar = net(batch)
@@ -148,10 +166,19 @@ with torch.no_grad():
     for data in random.sample(list(test_loader), 1):
         imgs, _ = data
         imgs = imgs.to(device)
-        img = np.transpose(imgs[0].cpu().numpy(), [1, 2, 0])
-        plt.subplot(121)
-        plt.imshow(np.squeeze(img))
+        imgs = imgs.permute(0, 1, 4, 2, 3)  # switch from NHWC to NCHW
+        imgs = transforms.Grayscale().forward(imgs)  # convert to grayscale
+        imgs = imgs[0]
+        imgs = imgs / 256
+        # img = np.transpose(imgs[0].cpu().numpy(), [1, 2, 0])
+        # plt.subplot(121)
+        # plt.imshow(np.squeeze(img))
+        plt.imshow(imgs[0][0].to("cpu"), "gray")
+        plt.show()
         out, mu, logVAR = net(imgs)
-        outimg = np.transpose(out[0].cpu().numpy(), [1, 2, 0])
-        plt.subplot(122)
-        plt.imshow(np.squeeze(outimg))
+        # outimg = np.transpose(out[0].cpu().numpy(), [1, 2, 0])
+        # plt.subplot(122)
+        # plt.imshow(np.squeeze(outimg))
+        plt.imshow(out[0][0].to("cpu"), "gray")
+        plt.show()
+
