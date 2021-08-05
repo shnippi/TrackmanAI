@@ -16,7 +16,7 @@ def pil_frombytes(im):
 
 
 def grab_screen(region=None):
-    mon = {'left': 0, 'top': 20, 'width': 790, 'height': 600}
+    mon = {'left': 0, 'top': 250, 'width': 790, 'height': 350}
 
     with mss() as sct:
         img = np.array(sct.grab(mon))
