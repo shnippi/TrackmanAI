@@ -1,3 +1,5 @@
+import pathlib
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -10,7 +12,6 @@ from PIL import Image
 from matplotlib import pyplot as plt
 
 torch.cuda.empty_cache()
-
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 batch_size = 64
@@ -21,11 +22,8 @@ width = 250
 
 def npy_loader(path):
     np_load_old = np.load
-
     np.load = lambda *a, **k: np_load_old(*a, allow_pickle=True, **k)
-
     sample = torch.from_numpy(np.load(path))
-
     np.load = np_load_old
     return sample
 
@@ -63,9 +61,9 @@ class VAE(nn.Module):
         # Initializing the fully-connected layer and 2 convolutional layers for decoder
         self.decFC1 = nn.Linear(zDim, featureDim)
 
-        self.decConv1 = nn.ConvTranspose2d(64, 32, 5, stride=2, output_padding = (1,1))
+        self.decConv1 = nn.ConvTranspose2d(64, 32, 5, stride=2, output_padding=(1, 1))
         self.decConv2 = nn.ConvTranspose2d(32, 16, 5, stride=2)
-        self.decConv3 = nn.ConvTranspose2d(16, imgChannels, 5, stride=2 , output_padding = (1,1))
+        self.decConv3 = nn.ConvTranspose2d(16, imgChannels, 5, stride=2, output_padding=(1, 1))
 
     def encoder(self, x):
         # Input is fed into 2 convolutional layers sequentially
@@ -106,7 +104,7 @@ class VAE(nn.Module):
         # print(x.shape)
         x = F.relu(self.decConv2(self.unpool(x, self.index2, output_size=torch.Size([64, 32, 29, 29]))))
         # print(x.shape)
-        x = torch.sigmoid(self.decConv3(self.unpool(x, self.index1 , output_size=torch.Size([64, 32, 123, 123]))))
+        x = torch.sigmoid(self.decConv3(self.unpool(x, self.index1, output_size=torch.Size([64, 32, 123, 123]))))
         # print(x.shape)
         return x
 
@@ -119,23 +117,17 @@ class VAE(nn.Module):
         return out, mu, logVar
 
 
-"""
-Initialize the network and the Adam optimizer
-"""
 net = VAE().to(device)
 optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
-"""
-Training the network for a given number of epochs
-The loss after every epoch is printed
-"""
+# training loop
 for epoch in range(num_epochs):
     for idx, data in enumerate(train_loader, 0):
         imgs, _ = data
         imgs = imgs.to(device)
         imgs = imgs.permute(0, 1, 4, 2, 3)  # switch from NHWC to NCHW
         imgs = transforms.Grayscale().forward(imgs)  # convert to grayscale
-        # print(imgs.shape)
+        print(imgs.shape)
 
         for file in imgs:
             file = file / 256
@@ -161,6 +153,11 @@ for epoch in range(num_epochs):
                 optimizer.step()
 
     print('Epoch {}: Loss {}'.format(epoch, loss))
+
+    results_dir = pathlib.Path("models")
+    save_dir = results_dir / f"VAE.model"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    torch.save(net.state_dict(), save_dir)
 
 """
 The following part takes a random image from test loader to feed into the VAE.

@@ -21,12 +21,12 @@ starting_value = 0
 
 
 # starting from the file we left off
-# while True:
-#     if os.path.isfile('E:/code/Python/Trackmania-RL/data/train/training_data-{}.npy'.format(starting_value)):
-#         starting_value += 1
-#     else:
-#         print('Starting from file: ', starting_value)
-#         break
+while True:
+    if os.path.isfile('E:/code/Python/Trackmania-RL/data/train/training_data-{}.npy'.format(starting_value)):
+        starting_value += 1
+    else:
+        print('Starting from file: ', starting_value)
+        break
 
 def grab_screen(monitor_nr=1):
 
@@ -89,12 +89,10 @@ def main(starting_value):
                 break
 
             if len(training_data) % 100 == 0:
-                print(len(training_data))
-
                 if len(training_data) == 500:
                     file_name = 'E:/code/Python/Trackmania-RL/data/train/training_data-{}.npy'.format(starting_value)
                     np.save(file_name, training_data)
-                    print('SAVED')
+                    print('SAVED file {}'.format(starting_value))
                     training_data = []
                     starting_value += 1
 
