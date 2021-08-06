@@ -1,4 +1,4 @@
-from VAE import VAE
+from networks import VAE_net, AE_net, AE_net_no_pool, AE_skip
 import torch
 import numpy as np
 from torchvision import datasets, transforms
@@ -8,8 +8,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 print("testing")
 
-model_file_name = "VAE.model"
-net = VAE()
+model_file_name = "E:/code/Python/Trackmania-RL/models/AE.model"
+net = AE_skip()
 batch_size = 10
 
 
@@ -28,8 +28,6 @@ test_dataset = datasets.DatasetFolder(
 )
 
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
-
-
 
 net.load_state_dict(torch.load(model_file_name, map_location=device))
 net = net.to(device)
@@ -51,10 +49,12 @@ for idx, data in enumerate(test_loader, 0):
 
         # iterate over batch
         for batch in torch.split(file, batch_size):
-            plt.imshow(batch[0].to("cpu"), "gray")
+            plt.imshow(batch[0][0].to("cpu"), "gray")
             plt.show()
 
             output = net(batch)
 
-            plt.imshow(output[0].to("cpu"), "gray")
+
+            # output[0][0][0] since mu and std also get returend, otherwise output[0][0]
+            plt.imshow(output[0][0].to("cpu").detach(), "gray")
             plt.show()

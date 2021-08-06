@@ -11,6 +11,7 @@ import time
 from PIL import Image
 from matplotlib import pyplot as plt
 import gc
+from networks import AE_net, AE_net_no_pool, AE_skip
 
 torch.cuda.empty_cache()
 gc.collect()
@@ -39,36 +40,10 @@ dataset = datasets.DatasetFolder(
 train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-
-class autoencoder(nn.Module):
-    def __init__(self):
-        super(autoencoder, self).__init__()
-        self.encoder = nn.Sequential(
-            nn.Conv2d(1, 16, 3, stride=3, padding=1),  # b, 16, 10, 10
-            nn.ReLU(True),
-            nn.MaxPool2d(2, stride=2),  # b, 16, 5, 5
-            nn.Conv2d(16, 8, 3, stride=2, padding=1),  # b, 8, 3, 3
-            nn.ReLU(True),
-            nn.MaxPool2d(2, stride=1)  # b, 8, 2, 2
-        )
-        self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(8, 16, 3, stride=2),  # b, 16, 5, 5
-            nn.ReLU(True),
-            nn.ConvTranspose2d(16, 8, 5, stride=3, padding=1),  # b, 8, 15, 15
-            nn.ReLU(True),
-            nn.ConvTranspose2d(8, 1, 2, stride=2, padding=1),  # b, 1, 28, 28
-            nn.Tanh()
-        )
-
-    def forward(self, x):
-        x = self.encoder(x)
-        x = self.decoder(x)
-        return x
-
-
-net = autoencoder().to(device)
+net = AE_net().to(device)
 optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 criterion = nn.MSELoss()
+# criterion = F.binary_cross_entropy(reduction="sum")
 
 # training loop
 for epoch in range(num_epochs):
@@ -93,6 +68,7 @@ for epoch in range(num_epochs):
                 # Feeding a batch of images into the network to obtain the output image, mu, and logVar
                 output = net(batch)
                 loss = criterion(output, batch)
+                # loss = F.binary_cross_entropy(output, batch, reduction='sum')
 
                 # Backpropagation based on the loss
                 optimizer.zero_grad()
@@ -102,36 +78,6 @@ for epoch in range(num_epochs):
     print('Epoch {}: Loss {}'.format(epoch, loss))
 
     results_dir = pathlib.Path("models")
-    save_dir = results_dir / f"VAE.model"
+    save_dir = results_dir / f"AE.model"
     results_dir.mkdir(parents=True, exist_ok=True)
     torch.save(net.state_dict(), save_dir)
-
-"""
-The following part takes a random image from test loader to feed into the VAE.
-Both the original image and generated image from the distribution are shown.
-"""
-
-import matplotlib.pyplot as plt
-import numpy as np
-import random
-
-net.eval()
-with torch.no_grad():
-    for data in random.sample(list(test_loader), 1):
-        imgs, _ = data
-        imgs = imgs.to(device)
-        imgs = imgs.permute(0, 1, 4, 2, 3)  # switch from NHWC to NCHW
-        imgs = transforms.Grayscale().forward(imgs)  # convert to grayscale
-        imgs = imgs[0]
-        imgs = imgs / 256
-        # img = np.transpose(imgs[0].cpu().numpy(), [1, 2, 0])
-        # plt.subplot(121)
-        # plt.imshow(np.squeeze(img))
-        plt.imshow(imgs[0][0].to("cpu"), "gray")
-        plt.show()
-        out, mu, logVAR = net(imgs)
-        # outimg = np.transpose(out[0].cpu().numpy(), [1, 2, 0])
-        # plt.subplot(122)
-        # plt.imshow(np.squeeze(outimg))
-        plt.imshow(out[0][0].to("cpu"), "gray")
-        plt.show()

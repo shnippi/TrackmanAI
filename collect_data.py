@@ -81,7 +81,7 @@ def main(starting_value):
             # output = keys_to_output(keys)
             # training_data.append(screen)
 
-            cv2.imshow('window', cv2.resize(screen, (500, 500)))
+            cv2.imshow('window', cv2.resize(screen, (100, 100)))
 
             # display recorded stream
             if cv2.waitKey(25) & 0xFF == ord('q'):
