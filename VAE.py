@@ -10,11 +10,13 @@ import cv2
 import time
 from PIL import Image
 from matplotlib import pyplot as plt
+import gc
 
 torch.cuda.empty_cache()
+gc.collect()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-batch_size = 64
+batch_size = 10
 learning_rate = 1e-3
 num_epochs = 100
 width = 250
@@ -28,18 +30,23 @@ def npy_loader(path):
     return sample
 
 
-dataset = datasets.DatasetFolder(
-    root='data',
+train_dataset = datasets.DatasetFolder(
+    root='data_train',
     loader=npy_loader,
     extensions='.npy',
 )
 
-train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
-test_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True)
+test_dataset = datasets.DatasetFolder(
+    root='data_test',
+    loader=npy_loader,
+    extensions='.npy',
+)
+
+train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
 
 class VAE(nn.Module):
-    # TODO: fix the padding
     def __init__(self, imgChannels=1, featureDim=64 * 2 * 2, zDim=64):
         super(VAE, self).__init__()
 
@@ -116,6 +123,12 @@ class VAE(nn.Module):
         out = self.decoder(z)
         return out, mu, logVar
 
+    def get_z(self, x):
+        mu, logVar = self.encoder(x)
+        z = self.reparameterize(mu, logVar)
+
+        return z
+
 
 net = VAE().to(device)
 optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
@@ -127,7 +140,7 @@ for epoch in range(num_epochs):
         imgs = imgs.to(device)
         imgs = imgs.permute(0, 1, 4, 2, 3)  # switch from NHWC to NCHW
         imgs = transforms.Grayscale().forward(imgs)  # convert to grayscale
-        print(imgs.shape)
+        # print(imgs.shape)
 
         for file in imgs:
             file = file / 256

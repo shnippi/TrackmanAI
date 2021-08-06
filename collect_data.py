@@ -22,7 +22,7 @@ starting_value = 0
 
 # starting from the file we left off
 while True:
-    if os.path.isfile('E:/code/Python/Trackmania-RL/data/train/training_data-{}.npy'.format(starting_value)):
+    if os.path.isfile('E:/code/Python/Trackmania-RL/data_train/train/training_data-{}.npy'.format(starting_value)):
         starting_value += 1
     else:
         print('Starting from file: ', starting_value)
@@ -53,7 +53,7 @@ def grab_screen(monitor_nr=1):
                 "mon": monitor_number,
             }
 
-            # Grab the data
+            # Grab the data_train
             img = np.array(sct.grab(monitor))
             return cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
 
@@ -90,7 +90,7 @@ def main(starting_value):
 
             if len(training_data) % 100 == 0:
                 if len(training_data) == 500:
-                    file_name = 'E:/code/Python/Trackmania-RL/data/train/training_data-{}.npy'.format(starting_value)
+                    file_name = 'E:/code/Python/Trackmania-RL/data_train/train/training_data-{}.npy'.format(starting_value)
                     np.save(file_name, training_data)
                     print('SAVED file {}'.format(starting_value))
                     training_data = []
