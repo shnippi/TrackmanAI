@@ -67,8 +67,8 @@ for epoch in range(num_epochs):
 
                 # Feeding a batch of images into the network to obtain the output image, mu, and logVar
                 output = net(batch)
-                loss = criterion(output, batch)
-                # loss = F.binary_cross_entropy(output, batch, reduction='sum')
+                # loss = criterion(output, batch)
+                loss = F.binary_cross_entropy(output, batch, reduction='sum')
 
                 # Backpropagation based on the loss
                 optimizer.zero_grad()

@@ -8,8 +8,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 print("testing")
 
-model_file_name = "E:/code/Python/Trackmania-RL/models/AE.model"
-net = AE_skip()
+model_file_name = "/models/AE_1.model"
+net = AE_net()
 batch_size = 10
 
 
