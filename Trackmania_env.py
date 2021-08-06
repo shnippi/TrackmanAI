@@ -29,11 +29,11 @@ class Trackmania_env:
         self.action_space = TM_actionspace()
 
     def reset(self):
-        time.sleep(4)
+        for i in list(range(3))[::-1]:
+            print(i + 1)
+            time.sleep(1)
         # gets game state (maybe resets race if possible with backspace)
         PressKey(BACKSPACE)
-
-        time.sleep(4)
         return np.array(self.get_state_rep())
 
     def step(self, action):
@@ -47,7 +47,7 @@ class Trackmania_env:
             time.sleep(0.1)
             ReleaseKey(A)
 
-        if action[1] >= 0:
+        if action[1] >= -1:
             PressKey(W)
             time.sleep(0.1)
             ReleaseKey(W)
@@ -105,12 +105,12 @@ class Trackmania_env:
         screen = screen.to(self.device)
         screen = screen.float()
 
-        plt.imshow(screen[0][0].to("cpu"), "gray")
-        plt.show()
-        output = self.net(screen)
-        output = output.detach().to("cpu")
-        plt.imshow(output[0][0].to("cpu"), "gray")
-        plt.show()
+        # plt.imshow(screen[0][0].to("cpu"), "gray")
+        # plt.show()
+        # output = self.net(screen)
+        # output = output.detach().to("cpu")
+        # plt.imshow(output[0][0].to("cpu"), "gray")
+        # plt.show()
 
         z = self.net.get_z(screen)
         z = torch.squeeze(z)

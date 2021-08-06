@@ -2,3 +2,4 @@
 __pycache__/
 /data_train
 /data_test
+/SAC/runs
