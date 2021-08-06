@@ -4,7 +4,7 @@ import torch
 import torch.nn.functional as F
 from torch.optim import Adam
 from utils import soft_update, hard_update
-from networks import GaussianPolicy, QNetwork, DeterministicPolicy
+from SAC_networks import GaussianPolicy, QNetwork, DeterministicPolicy
 
 
 class SAC(object):

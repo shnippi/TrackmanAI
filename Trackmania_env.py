@@ -1,10 +1,19 @@
-from networks import AE_net
+from AE_networks import AE_net
 import torch
 import numpy as np
 import cv2
 from mss import mss
 import time
 from matplotlib import pyplot as plt
+from directkeys import PressKey, ReleaseKey
+import random
+
+# key hexcodes
+W = 0x11
+A = 0x1E
+S = 0x1F
+D = 0x20
+BACKSPACE = 0x0E
 
 
 class Trackmania_env():
@@ -16,35 +25,37 @@ class Trackmania_env():
         self.net.load_state_dict(torch.load(self.model_file_name, map_location=self.device))
         self.net.to(self.device)
 
+        self.observation_space = torch.tensor([256])
+        self.action_space = torch.tensor([2])
+
     def reset(self):
+        time.sleep(4)
         # gets game state (maybe resets race if possible with backspace)
+        PressKey(BACKSPACE)
 
-        screen = self.grab_screen()
-        screen = screen / 256
-        screen = torch.from_numpy(screen)
-        screen = torch.unsqueeze(screen, 0)  # add color dim
-        screen = torch.unsqueeze(screen, 0)  # add batch dim
-        screen = screen.to(self.device)
-        screen = screen.float()
-
-        # plt.imshow(screen[0][0].to("cpu"), "gray")
-        # plt.show()
-        # output = self.net(screen)
-        # output = output.detach().to("cpu")
-        # plt.imshow(output[0][0].to("cpu"), "gray")
-        # plt.show()
-
-        z = self.net.get_z(screen)
-        z = torch.squeeze(z)
-        z = z.detach().to("cpu")
-
-        return z
+        time.sleep(4)
+        return self.get_state_rep()
 
     def step(self, action):
         # performs action and gets new gamestate
-        pass
+        if action[0] >= 0:
+            PressKey(D)
+            ReleaseKey(D)
+        else:
+            PressKey(A)
+            ReleaseKey(A)
 
-    def grab_screen(self, monitor_nr=1):
+        time.sleep(0.1)
+        if action[1] >= 1:
+            PressKey(W)
+            ReleaseKey(W)
+        else:
+            PressKey(S)
+            ReleaseKey(S)
+
+        z = self.get_state_rep()
+
+    def get_state_rep(self, monitor_nr=1):
 
         if monitor_nr == 1:
             mon = {'left': 0, 'top': 250, 'width': 790, 'height': 350}
@@ -55,7 +66,7 @@ class Trackmania_env():
                 # cv2.imshow('window', cv2.resize(img, (500, 500)))
                 # key = cv2.waitKey(3000)
                 # cv2.destroyAllWindows()
-                return cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+                screen = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
 
 
         else:
@@ -79,4 +90,26 @@ class Trackmania_env():
                 # cv2.imshow('window', cv2.resize(img, (500, 500)))
                 # key = cv2.waitKey(3000)
                 # cv2.destroyAllWindows()
-                return cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+                screen = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+
+        screen = screen / 256
+        screen = torch.from_numpy(screen)
+        screen = torch.unsqueeze(screen, 0)  # add color dim
+        screen = torch.unsqueeze(screen, 0)  # add batch dim
+        screen = screen.to(self.device)
+        screen = screen.float()
+
+        plt.imshow(screen[0][0].to("cpu"), "gray")
+        plt.show()
+        output = self.net(screen)
+        output = output.detach().to("cpu")
+        plt.imshow(output[0][0].to("cpu"), "gray")
+        plt.show()
+
+        z = self.net.get_z(screen)
+        z = torch.squeeze(z)
+        z = z.detach().to("cpu")
+        return z
+
+    def random_action(self):
+        return np.array([random.uniform(-1, 1), random.uniform(-1, 1)])

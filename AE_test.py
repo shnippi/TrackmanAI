@@ -1,4 +1,4 @@
-from networks import VAE_net, AE_net, AE_net_no_pool, AE_skip
+from AE_networks import VAE_net, AE_net, AE_net_no_pool, AE_skip
 import torch
 import numpy as np
 from torchvision import datasets, transforms

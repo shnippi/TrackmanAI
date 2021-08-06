@@ -7,10 +7,11 @@ import torch
 from sac import SAC
 from torch.utils.tensorboard import SummaryWriter
 from replay_memory import ReplayMemory
+from Trackmania_env import Trackmania_env
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
-parser.add_argument('--env-name', default="HalfCheetah-v2",
-                    help='Mujoco Gym environment (default: HalfCheetah-v2)')
+parser.add_argument('--env-name', default="Trackmania",
+                    help='IDK what you want help with lol')
 parser.add_argument('--policy', default="Gaussian",
                     help='Policy Type: Gaussian | Deterministic (default: Gaussian)')
 parser.add_argument('--eval', type=bool, default=True,
@@ -46,14 +47,17 @@ parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
 args = parser.parse_args()
 
+print(args)
+
 # Environment
 # env = NormalizedActions(gym.make(args.env_name))
-env = gym.make(args.env_name)
-env.seed(args.seed)
-env.action_space.seed(args.seed)
+env = Trackmania_env()
 
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
+
+print(env.observation_space.shape[0])
+print(env.action_space)
 
 # Agent
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
