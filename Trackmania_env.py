@@ -16,7 +16,7 @@ D = 0x20
 BACKSPACE = 0x0E
 
 
-class Trackmania_env():
+class Trackmania_env:
 
     def __init__(self):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -26,7 +26,7 @@ class Trackmania_env():
         self.net.to(self.device)
 
         self.observation_space = torch.tensor([256])
-        self.action_space = torch.tensor([2])
+        self.action_space = TM_actionspace()
 
     def reset(self):
         time.sleep(4)
@@ -34,26 +34,33 @@ class Trackmania_env():
         PressKey(BACKSPACE)
 
         time.sleep(4)
-        return self.get_state_rep()
+        return np.array(self.get_state_rep())
 
     def step(self, action):
         # performs action and gets new gamestate
         if action[0] >= 0:
             PressKey(D)
+            time.sleep(0.1)
             ReleaseKey(D)
         else:
             PressKey(A)
+            time.sleep(0.1)
             ReleaseKey(A)
 
-        time.sleep(0.1)
-        if action[1] >= 1:
+        if action[1] >= 0:
             PressKey(W)
+            time.sleep(0.1)
             ReleaseKey(W)
         else:
             PressKey(S)
+            time.sleep(0.1)
             ReleaseKey(S)
 
-        z = self.get_state_rep()
+        z = np.array(self.get_state_rep())
+
+        reward = 10
+
+        return z, reward, False, None
 
     def get_state_rep(self, monitor_nr=1):
 
@@ -67,7 +74,6 @@ class Trackmania_env():
                 # key = cv2.waitKey(3000)
                 # cv2.destroyAllWindows()
                 screen = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
-
 
         else:
             with mss() as sct:
@@ -113,3 +119,10 @@ class Trackmania_env():
 
     def random_action(self):
         return np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
+
+
+class TM_actionspace():
+    def __init__(self):
+        self.high = np.array([1., 1.])
+        self.low = np.array([-1., -1.])
+        self.shape = np.array([2])
