@@ -8,6 +8,7 @@ from sac import SAC
 from torch.utils.tensorboard import SummaryWriter
 from replay_memory import ReplayMemory
 from Trackmania_env import Trackmania_env
+import time
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="Trackmania",
@@ -29,7 +30,7 @@ parser.add_argument('--automatic_entropy_tuning', type=bool, default=False, meta
                     help='Automaically adjust α (default: False)')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
-parser.add_argument('--batch_size', type=int, default=256, metavar='N',
+parser.add_argument('--batch_size', type=int, default=128, metavar='N',
                     help='batch size (default: 256)')
 parser.add_argument('--num_steps', type=int, default=1000001, metavar='N',
                     help='maximum number of steps (default: 1000000)')
@@ -37,7 +38,7 @@ parser.add_argument('--hidden_size', type=int, default=256, metavar='N',
                     help='hidden size (default: 256)')
 parser.add_argument('--updates_per_step', type=int, default=1, metavar='N',
                     help='model updates per simulator step (default: 1)')
-parser.add_argument('--start_steps', type=int, default=10000, metavar='N',
+parser.add_argument('--start_steps', type=int, default=10, metavar='N',
                     help='Steps sampling random actions (default: 10000)')
 parser.add_argument('--target_update_interval', type=int, default=1, metavar='N',
                     help='Value target update per no. of updates per step (default: 1)')
@@ -45,12 +46,14 @@ parser.add_argument('--replay_size', type=int, default=1000000, metavar='N',
                     help='size of replay buffer (default: 10000000)')
 parser.add_argument('--cuda', action="store_true",
                     help='run on CUDA (default: False)')
+
+for i in list(range(3))[::-1]:
+    print(i + 1)
+    time.sleep(1)
+
+
 args = parser.parse_args()
-
-print(args)
-
 # Environment
-# env = NormalizedActions(gym.make(args.env_name))
 env = Trackmania_env()
 
 torch.manual_seed(args.seed)
@@ -86,11 +89,10 @@ for i_episode in itertools.count(1):
         if len(memory) > args.batch_size:
             # Number of updates per step in environment
             for i in range(args.updates_per_step):
-                # Update parameters of all the networks
+                # Update parameters of all the networkdw
                 critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory,
-                                                                                                     args.batch_size,
+                                                                                                    args.batch_size,
                                                                                                      updates)
-
                 writer.add_scalar('loss/critic_1', critic_1_loss, updates)
                 writer.add_scalar('loss/critic_2', critic_2_loss, updates)
                 writer.add_scalar('loss/policy', policy_loss, updates)
@@ -107,10 +109,13 @@ for i_episode in itertools.count(1):
         # (https://github.com/openai/spinningup/blob/master/spinup/algos/sac/sac.py)
         # mask = 1 if episode_steps == env._max_episode_steps else float(not done)
         mask = 1
-
         memory.push(state, action, reward, next_state, mask)  # Append transition to memory
 
         state = next_state
+
+        # print(total_numsteps)
+        if episode_steps > 130:
+            done = True
 
     if total_numsteps > args.num_steps:
         break
@@ -143,4 +148,6 @@ for i_episode in itertools.count(1):
         print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
         print("----------------------------------------")
 
-env.close()
+# env.close()
+
+print("hello")

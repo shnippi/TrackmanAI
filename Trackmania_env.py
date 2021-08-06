@@ -25,15 +25,18 @@ class Trackmania_env:
         self.net.load_state_dict(torch.load(self.model_file_name, map_location=self.device))
         self.net.to(self.device)
 
-        self.observation_space = torch.tensor([256])
+        self.observation_space = torch.zeros(256)
         self.action_space = TM_actionspace()
 
     def reset(self):
-        for i in list(range(3))[::-1]:
-            print(i + 1)
-            time.sleep(1)
-        # gets game state (maybe resets race if possible with backspace)
+        # reset
         PressKey(BACKSPACE)
+        ReleaseKey(BACKSPACE)
+
+        # print("RESETTING...")
+        for i in list(range(2))[::-1]:
+            time.sleep(1)
+
         return np.array(self.get_state_rep())
 
     def step(self, action):
@@ -47,7 +50,7 @@ class Trackmania_env:
             time.sleep(0.1)
             ReleaseKey(A)
 
-        if action[1] >= -1:
+        if action[1] >= 0:
             PressKey(W)
             time.sleep(0.1)
             ReleaseKey(W)
