@@ -7,6 +7,9 @@ import time
 from matplotlib import pyplot as plt
 from directkeys import PressKey, ReleaseKey
 import random
+import pytesseract
+
+pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
 
 # key hexcodes
 W = 0x11
@@ -119,6 +122,43 @@ class Trackmania_env:
         z = torch.squeeze(z)
         z = z.detach().to("cpu")
         return z
+
+    def get_cp(self):
+
+        mon = {'left': 340, 'top': 550, 'width': 150, 'height': 30}
+
+        with mss() as sct:
+            img = np.array(sct.grab(mon))
+            # cv2.imshow("result",img)
+            # cv2.waitKey(0)
+            # cv2.destroyAllWindows()
+            string = pytesseract.image_to_string(img)
+            cp = ""
+            for i in string:
+                if i.isdigit() or i == "/":
+                    cp += i
+
+            print(cp.split("/"))
+            return cp.split("/")
+
+    def get_speed(self):
+
+        mon = {'left': 550, 'top': 260, 'width': 50, 'height': 30}
+
+        with mss() as sct:
+            img = np.array(sct.grab(mon))
+            # cv2.imshow("result",img)
+            # cv2.waitKey(0)
+            cv2.destroyAllWindows()
+            string = pytesseract.image_to_string(img)
+            print(string)
+            speed = ""
+            for i in string:
+                if i.isdigit() or i == "/":
+                    speed += i
+
+            print(speed.split("/"))
+            return speed.split("/")
 
     def random_action(self):
         return np.array([random.uniform(-1, 1), random.uniform(-1, 1)])

@@ -32,7 +32,6 @@ def grab_screen(monitor_nr=1):
 
     if monitor_nr == 1:
         mon = {'left': 0, 'top': 250, 'width': 790, 'height': 350}
-
         with mss() as sct:
             img = np.array(sct.grab(mon))
             return cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
@@ -69,7 +68,7 @@ def main(starting_value):
     while True:
 
         if not paused:
-            screen = grab_screen(monitor_nr=2)
+            screen = grab_screen(monitor_nr=1)
             # resize to something a bit more acceptable for a CNN
             screen = cv2.resize(screen, (250, 250))
             screen = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
@@ -82,6 +81,7 @@ def main(starting_value):
             # training_data.append(screen)
 
             cv2.imshow('window', cv2.resize(screen, (500, 500)))
+            cv2.waitKey(0)
 
             # display recorded stream
             if cv2.waitKey(25) & 0xFF == ord('q'):
