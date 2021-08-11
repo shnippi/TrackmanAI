@@ -9,6 +9,8 @@ from torch.utils.tensorboard import SummaryWriter
 from replay_memory import ReplayMemory
 from Trackmania_env import Trackmania_env
 import time
+from getkeys import key_check
+
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="Trackmania",
@@ -133,6 +135,11 @@ for i_episode in itertools.count(1):
             episode_reward = 0
             done = False
             while not done:
+                keys = key_check()
+                if 'T' in keys:
+                    print("PAUSED")
+                    input("Press Enter to continue...")
+
                 action = agent.select_action(state, evaluate=True)
 
                 next_state, reward, done, _ = env.step(action)

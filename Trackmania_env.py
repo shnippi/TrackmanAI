@@ -57,7 +57,8 @@ class Trackmania_env:
             time.sleep(0.1)
             ReleaseKey(A)
 
-        if action[1] >= 0:
+        # TODO: currently only going forward
+        if action[1] >= -1:
             PressKey(W)
             time.sleep(0.1)
             ReleaseKey(W)
@@ -173,20 +174,21 @@ class Trackmania_env:
             # cv2.imshow("result",img)
             # cv2.waitKey(0)
 
+
             string = pytesseract.image_to_string(img)
             speed = ""
             for i in string:
-                if i.isdigit() or i == "/":
+                if i.isdigit():
                     speed += i
 
-            print(speed)
+            print(self.speed)
 
             # check if OCR worked, else take old value
             if speed:
                 self.speed = int(speed)
                 return self.speed
             else:
-                self.speed -= 2
+                self.speed = max(self.speed - 5,0)
                 return self.speed
 
     def random_action(self):
