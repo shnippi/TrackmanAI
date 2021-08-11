@@ -31,6 +31,10 @@ class Trackmania_env:
         self.observation_space = torch.zeros(256)
         self.action_space = TM_actionspace()
 
+        # save last measured checkpoint and speed such that if the OCR fails we just take last measured
+        self.cp = ["0", "0"]
+        self.speed = 0
+
     def reset(self):
         # reset
         PressKey(BACKSPACE)
@@ -64,7 +68,12 @@ class Trackmania_env:
 
         z = np.array(self.get_state_rep())
 
-        reward = 10
+        speed = self.get_speed()
+        cp, cp_reached = self.get_cp()
+
+        reward = (speed / 150) ** 2 - 0.15
+        if cp_reached:
+            reward += 20
 
         return z, reward, False, None
 
@@ -78,7 +87,6 @@ class Trackmania_env:
                 img = cv2.resize(img, (250, 250))
                 # cv2.imshow('window', cv2.resize(img, (500, 500)))
                 # key = cv2.waitKey(3000)
-                # cv2.destroyAllWindows()
                 screen = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
 
         else:
@@ -101,7 +109,6 @@ class Trackmania_env:
                 img = cv2.resize(img, (250, 250))
                 # cv2.imshow('window', cv2.resize(img, (500, 500)))
                 # key = cv2.waitKey(3000)
-                # cv2.destroyAllWindows()
                 screen = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
 
         screen = screen / 256
@@ -125,40 +132,62 @@ class Trackmania_env:
 
     def get_cp(self):
 
+        cp_reached = False
+
         mon = {'left': 340, 'top': 550, 'width': 150, 'height': 30}
 
         with mss() as sct:
             img = np.array(sct.grab(mon))
+            img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+            img = (img > 254) * img  # only take the pure white part of image (where the values are displayed)
+
             # cv2.imshow("result",img)
             # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
+
             string = pytesseract.image_to_string(img)
             cp = ""
             for i in string:
                 if i.isdigit() or i == "/":
                     cp += i
 
-            print(cp.split("/"))
-            return cp.split("/")
+            if cp:
+                if cp.split("/") != self.cp:
+                    print("checkpoint!")
+                    cp_reached = True
+
+                self.cp = cp.split("/")
+                return self.cp, cp_reached
+            else:
+                return self.cp, cp_reached
 
     def get_speed(self):
 
-        mon = {'left': 550, 'top': 260, 'width': 50, 'height': 30}
+        mon = {'left': 550, 'top': 260, 'width': 70, 'height': 30}
 
         with mss() as sct:
             img = np.array(sct.grab(mon))
+            img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+            img = (img > 180) * img  # only take the pure white part of image (where the values are displayed)
+            img = cv2.resize(img, (140, 60))
+
             # cv2.imshow("result",img)
             # cv2.waitKey(0)
-            cv2.destroyAllWindows()
+
             string = pytesseract.image_to_string(img)
-            print(string)
             speed = ""
             for i in string:
                 if i.isdigit() or i == "/":
                     speed += i
 
-            print(speed.split("/"))
-            return speed.split("/")
+            print(speed)
+
+            # check if OCR worked, else take old value
+            if speed:
+                self.speed = int(speed)
+                return self.speed
+            else:
+                self.speed -= 2
+                return self.speed
 
     def random_action(self):
         return np.array([random.uniform(-1, 1), random.uniform(-1, 1)])

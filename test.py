@@ -3,4 +3,6 @@ from Trackmania_env import Trackmania_env
 import numpy as np
 
 env = Trackmania_env()
-env.get_speed()
+print(["1","0"] == ["0","0"])
+
+
