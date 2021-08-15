@@ -36,6 +36,7 @@ class Trackmania_env:
         self.first_cp_predict_counter = 0
         self.speed = 0
         self.time = ""
+        self.stuck_counter = 0
 
     def reset(self):
         # reset
@@ -49,6 +50,9 @@ class Trackmania_env:
         return np.array(self.get_state_rep())
 
     def step(self, action):
+
+        done = False
+
         # performs action and gets new gamestate
         if action[0] >= 0:
             PressKey(D)
@@ -74,11 +78,19 @@ class Trackmania_env:
         speed = self.get_speed()
         cp, cp_reached = self.get_cp()
 
+        if speed == 0:
+            self.stuck_counter += 1
+            if self.stuck_counter > 30:
+                done = True
+                self.stuck_counter = 0
+
+        # print("speed: " + str(speed) + " ; cp: " + str(cp))
+
         reward = (speed / 150) ** 2 - 0.15
         if cp_reached:
             reward += 20
 
-        return z, reward, False, None
+        return z, reward, done, None
 
     def get_state_rep(self, monitor_nr=1):
 
@@ -89,7 +101,7 @@ class Trackmania_env:
                 img = np.array(sct.grab(mon))
                 img = cv2.resize(img, (250, 250))
                 # cv2.imshow('window', cv2.resize(img, (500, 500)))
-                # key = cv2.waitKey(3000)
+                # key = cv2.waitKey(0)
                 screen = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
 
         else:
@@ -163,34 +175,37 @@ class Trackmania_env:
                     cp += i
 
             # print(cp.split("/"))
-            print(self.cp)
+            # print(self.cp)
             cp = cp.split("/")
+            print(cp)
 
             # check if / got recognized as a number
             if len(cp) == 1:
                 cp = [""]
 
             if cp != [""]:
+                
                 if cp != self.cp and cp[0] != "0":
                     print("checkpoint!")
                     cp_reached = True
 
                 self.cp = cp
+
                 return self.cp, cp_reached
 
             # try to predict if it hit first cp
-            if cp == [""] and self.cp[0] == "0":
+            elif cp == [""] and self.cp[0] == "0":
                 self.first_cp_predict_counter += 1
+
                 if self.first_cp_predict_counter >= 5:
                     print("checkpoint!")
                     cp_reached = True
                     self.first_cp_predict_counter = 0
-
                     self.cp[0] = "1"
+
                     return self.cp, cp_reached
 
-            else:
-                return self.cp, cp_reached
+            return self.cp, cp_reached
 
     def get_speed(self):
 
@@ -210,7 +225,7 @@ class Trackmania_env:
             for i in string:
                 if i.isdigit():
                     speed += i
-            print(speed)
+            # print(speed)
             # print(self.speed)
 
             # check if OCR worked, else take old value

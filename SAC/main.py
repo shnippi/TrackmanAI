@@ -1,5 +1,7 @@
 import argparse
 import datetime
+import os
+
 import gym
 import numpy as np
 import itertools
@@ -10,7 +12,11 @@ from replay_memory import ReplayMemory
 from Trackmania_env import Trackmania_env
 import time
 from getkeys import key_check
+import wandb
+from dotenv import load_dotenv
 
+load_dotenv()
+wandb.login()
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="Trackmania",
@@ -53,7 +59,6 @@ for i in list(range(3))[::-1]:
     print(i + 1)
     time.sleep(1)
 
-
 args = parser.parse_args()
 # Environment
 env = Trackmania_env()
@@ -93,7 +98,7 @@ for i_episode in itertools.count(1):
             for i in range(args.updates_per_step):
                 # Update parameters of all the networkdw
                 critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory,
-                                                                                                    args.batch_size,
+                                                                                                     args.batch_size,
                                                                                                      updates)
                 writer.add_scalar('loss/critic_1', critic_1_loss, updates)
                 writer.add_scalar('loss/critic_2', critic_2_loss, updates)
@@ -106,6 +111,8 @@ for i_episode in itertools.count(1):
         episode_steps += 1
         total_numsteps += 1
         episode_reward += reward
+
+        # print(reward)
 
         # Ignore the "done" signal if it comes from hitting the time horizon.
         # (https://github.com/openai/spinningup/blob/master/spinup/algos/sac/sac.py)
