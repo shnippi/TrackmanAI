@@ -32,8 +32,10 @@ class Trackmania_env:
         self.action_space = TM_actionspace()
 
         # save last measured checkpoint and speed such that if the OCR fails we just take last measured
-        self.cp = ["0", "0"]
+        self.cp = [""]
+        self.first_cp_predict_counter = 0
         self.speed = 0
+        self.time = ""
 
     def reset(self):
         # reset
@@ -131,16 +133,25 @@ class Trackmania_env:
         z = z.detach().to("cpu")
         return z
 
+    # TODO: doest recognize 1
     def get_cp(self):
 
         cp_reached = False
 
-        mon = {'left': 340, 'top': 550, 'width': 150, 'height': 30}
+        mon = {'left': 350, 'top': 550, 'width': 100, 'height': 30}
 
         with mss() as sct:
             img = np.array(sct.grab(mon))
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
-            img = (img > 254) * img  # only take the pure white part of image (where the values are displayed)
+            img = (img > 250) * img  # only take the pure white part of image (where the values are displayed)
+            img = cv2.resize(img, (200, 60))
+
+            # first = img[:, 40:85]
+            # first = cv2.resize(first, (28, 28))
+            # string = pytesseract.image_to_string(first)
+            # print(string)
+            # cv2.imshow("result",first)
+            # cv2.waitKey(0)
 
             # cv2.imshow("result",img)
             # cv2.waitKey(0)
@@ -151,44 +162,93 @@ class Trackmania_env:
                 if i.isdigit() or i == "/":
                     cp += i
 
-            if cp:
-                if cp.split("/") != self.cp:
+            # print(cp.split("/"))
+            print(self.cp)
+            cp = cp.split("/")
+
+            # check if / got recognized as a number
+            if len(cp) == 1:
+                cp = [""]
+
+            if cp != [""]:
+                if cp != self.cp and cp[0] != "0":
                     print("checkpoint!")
                     cp_reached = True
 
-                self.cp = cp.split("/")
+                self.cp = cp
                 return self.cp, cp_reached
+
+            # try to predict if it hit first cp
+            if cp == [""] and self.cp[0] == "0":
+                self.first_cp_predict_counter += 1
+                if self.first_cp_predict_counter >= 5:
+                    print("checkpoint!")
+                    cp_reached = True
+                    self.first_cp_predict_counter = 0
+
+                    self.cp[0] = "1"
+                    return self.cp, cp_reached
+
             else:
                 return self.cp, cp_reached
 
     def get_speed(self):
 
-        mon = {'left': 550, 'top': 260, 'width': 70, 'height': 30}
+        mon = {'left': 550, 'top': 260, 'width': 60, 'height': 30}
 
         with mss() as sct:
             img = np.array(sct.grab(mon))
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
-            img = (img > 180) * img  # only take the pure white part of image (where the values are displayed)
-            img = cv2.resize(img, (140, 60))
+            img = (img > 150) * img  # only take the pure white part of image (where the values are displayed)
+            img = cv2.resize(img, (240, 120))
 
             # cv2.imshow("result",img)
             # cv2.waitKey(0)
-
 
             string = pytesseract.image_to_string(img)
             speed = ""
             for i in string:
                 if i.isdigit():
                     speed += i
-
-            print(self.speed)
+            print(speed)
+            # print(self.speed)
 
             # check if OCR worked, else take old value
             if speed:
                 self.speed = int(speed)
                 return self.speed
             else:
-                self.speed = max(self.speed - 5,0)
+                self.speed = max(self.speed - 5, 0)
+                return self.speed
+
+    def get_time(self):
+
+        mon = {'left': 350, 'top': 575, 'width': 100, 'height': 40}
+
+        with mss() as sct:
+            img = np.array(sct.grab(mon))
+            img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+            img = (img > 250) * img  # only take the pure white part of image (where the values are displayed)
+            img = cv2.resize(img, (140, 60))
+
+            # cv2.imshow("result",img)
+            # cv2.waitKey(0)
+
+            string = pytesseract.image_to_string(img)
+            print(string)
+            time = ""
+            for i in string:
+                if i.isdigit():
+                    time += i
+
+            print(self.speed)
+
+            # check if OCR worked, else take old value
+            if time:
+                self.speed = int(time)
+                return self.speed
+            else:
+                self.speed = max(self.speed - 5, 0)
                 return self.speed
 
     def random_action(self):
