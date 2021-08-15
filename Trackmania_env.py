@@ -78,17 +78,18 @@ class Trackmania_env:
         speed = self.get_speed()
         cp, cp_reached = self.get_cp()
 
+        reward = (speed / 150) ** 2 - 0.15
+        if cp_reached:
+            reward += 20
+
         if speed == 0:
             self.stuck_counter += 1
             if self.stuck_counter > 30:
                 done = True
                 self.stuck_counter = 0
+                reward = -50
 
-        # print("speed: " + str(speed) + " ; cp: " + str(cp))
-
-        reward = (speed / 150) ** 2 - 0.15
-        if cp_reached:
-            reward += 20
+        print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
 
         return z, reward, done, None
 
@@ -177,14 +178,14 @@ class Trackmania_env:
             # print(cp.split("/"))
             # print(self.cp)
             cp = cp.split("/")
-            print(cp)
+            # print(cp)
 
             # check if / got recognized as a number
             if len(cp) == 1:
                 cp = [""]
 
             if cp != [""]:
-                
+
                 if cp != self.cp and cp[0] != "0":
                     print("checkpoint!")
                     cp_reached = True

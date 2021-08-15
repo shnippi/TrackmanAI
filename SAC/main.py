@@ -123,8 +123,8 @@ for i_episode in itertools.count(1):
         state = next_state
 
         # print(total_numsteps)
-        if episode_steps > 130:
-            done = True
+        # if episode_steps > 130:
+        #     done = True
 
     if total_numsteps > args.num_steps:
         break
