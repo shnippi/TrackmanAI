@@ -43,6 +43,12 @@ class Trackmania_env:
         PressKey(BACKSPACE)
         ReleaseKey(BACKSPACE)
 
+        self.cp = [""]
+        self.first_cp_predict_counter = 0
+        self.speed = 0
+        self.time = ""
+        self.stuck_counter = 0
+
         # print("RESETTING...")
         for i in list(range(2))[::-1]:
             time.sleep(1)
@@ -53,25 +59,24 @@ class Trackmania_env:
 
         done = False
 
+        # TODO: instead of sleep do sth better, such that no idle time of code
+        ReleaseKey(D)
+        PressKey(A)
+        ReleaseKey(W)
+        ReleaseKey(S)
+
         # performs action and gets new gamestate
         if action[0] >= 0:
             PressKey(D)
-            time.sleep(0.1)
-            ReleaseKey(D)
         else:
             PressKey(A)
-            time.sleep(0.1)
-            ReleaseKey(A)
 
         # TODO: currently only going forward
-        if action[1] >= -1:
+        if action[1] >= 0:
             PressKey(W)
-            time.sleep(0.1)
-            ReleaseKey(W)
+
         else:
             PressKey(S)
-            time.sleep(0.1)
-            ReleaseKey(S)
 
         z = np.array(self.get_state_rep())
 
@@ -80,16 +85,16 @@ class Trackmania_env:
 
         reward = (speed / 150) ** 2 - 0.15
         if cp_reached:
-            reward += 20
+            reward += 50
 
         if speed == 0:
             self.stuck_counter += 1
             if self.stuck_counter > 30:
-                done = True
                 self.stuck_counter = 0
-                reward = -50
+                done = True
+                reward = -100
 
-        print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
+        # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
 
         return z, reward, done, None
 
@@ -147,6 +152,7 @@ class Trackmania_env:
         return z
 
     # TODO: doest recognize 1
+    # TODO: better checkpoint safetyguards (can only increment by 1 etc)
     def get_cp(self):
 
         cp_reached = False
@@ -158,6 +164,8 @@ class Trackmania_env:
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
             img = (img > 250) * img  # only take the pure white part of image (where the values are displayed)
             img = cv2.resize(img, (200, 60))
+
+            cp_reached = False
 
             # first = img[:, 40:85]
             # first = cv2.resize(first, (28, 28))
@@ -180,17 +188,22 @@ class Trackmania_env:
             cp = cp.split("/")
             # print(cp)
 
-            # check if / got recognized as a number
+            # check if "/" got recognized as a number
             if len(cp) == 1:
                 cp = [""]
 
-            if cp != [""]:
+            # if the ocr picked sth up
+            if cp != [""] and cp[0] != "" and cp[1] != "":
 
-                if cp != self.cp and cp[0] != "0":
+                if self.cp == [""]:
+                    self.cp = cp
+
+                # checkpoint reached, only update checkpoint value upon reaching checkpoint.
+                if cp[0] != self.cp[0] and cp[0] != "0" and int(cp[0]) % int(cp[1]) == (int(self.cp[0]) + 1) % int(
+                        cp[1]):
                     print("checkpoint!")
                     cp_reached = True
-
-                self.cp = cp
+                    self.cp = cp
 
                 return self.cp, cp_reached
 
@@ -198,10 +211,9 @@ class Trackmania_env:
             elif cp == [""] and self.cp[0] == "0":
                 self.first_cp_predict_counter += 1
 
-                if self.first_cp_predict_counter >= 5:
+                if self.first_cp_predict_counter >= 10:
                     print("checkpoint!")
                     cp_reached = True
-                    self.first_cp_predict_counter = 0
                     self.cp[0] = "1"
 
                     return self.cp, cp_reached

@@ -4,6 +4,7 @@ import time
 from getkeys import key_check
 import os
 from mss import mss
+import msvcrt as m
 
 # TODO: trackmania settings on 800x600
 

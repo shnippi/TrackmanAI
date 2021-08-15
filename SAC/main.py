@@ -14,6 +14,8 @@ import time
 from getkeys import key_check
 import wandb
 from dotenv import load_dotenv
+import msvcrt as m
+
 
 load_dotenv()
 wandb.login()
@@ -88,10 +90,23 @@ for i_episode in itertools.count(1):
     state = env.reset()
 
     while not done:
+
         if args.start_steps > total_numsteps:
             action = env.random_action()  # Sample random action
         else:
             action = agent.select_action(state)  # Sample action from policy
+            # print(action)
+
+        keys = key_check()
+        if 'P' in keys:
+            print("PAUSED")
+            while True:
+                time.sleep(1)
+                keys = key_check()
+
+                if 'P' in keys:
+                    print("UNPAUSED")
+                    break
 
         if len(memory) > args.batch_size:
             # Number of updates per step in environment
@@ -142,16 +157,10 @@ for i_episode in itertools.count(1):
             episode_reward = 0
             done = False
             while not done:
-                keys = key_check()
-                if 'T' in keys:
-                    print("PAUSED")
-                    input("Press Enter to continue...")
 
                 action = agent.select_action(state, evaluate=True)
-
                 next_state, reward, done, _ = env.step(action)
                 episode_reward += reward
-
                 state = next_state
             avg_reward += episode_reward
         avg_reward /= episodes
@@ -161,7 +170,3 @@ for i_episode in itertools.count(1):
         print("----------------------------------------")
         print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
         print("----------------------------------------")
-
-# env.close()
-
-print("hello")
