@@ -82,7 +82,9 @@ class Trackmania_env:
         else:
             PressKey(S)
 
+        # TODO: squish all values of z between -1 and 1?
         z = np.array(self.get_state_rep())
+        # print(z)
 
         speed = self.get_speed()
         cp, cp_reached = self.get_cp()
@@ -93,10 +95,11 @@ class Trackmania_env:
 
         if speed == 0:
             self.stuck_counter += 1
-            if self.stuck_counter > 50:
+            if self.stuck_counter > 30:
                 self.stuck_counter = 0
                 done = True
                 reward = -200
+                print("oooopsie woopsie stuckie wuckie")
 
         # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
 
@@ -149,6 +152,8 @@ class Trackmania_env:
         # output = output.detach().to("cpu")
         # plt.imshow(output[0][0].to("cpu"), "gray")
         # plt.show()
+
+        # self.show_reconstruction(screen)
 
         z = self.net.get_z(screen)
         z = torch.squeeze(z)
@@ -215,7 +220,7 @@ class Trackmania_env:
             elif cp == [""] and self.cp[0] == "0":
                 self.first_cp_predict_counter += 1
 
-                if self.first_cp_predict_counter >= 10:
+                if self.first_cp_predict_counter >= 30:
                     print("checkpoint!")
                     cp_reached = True
                     self.cp[0] = "1"
@@ -282,6 +287,16 @@ class Trackmania_env:
             else:
                 self.speed = max(self.speed - 5, 0)
                 return self.speed
+
+    def show_reconstruction(self, screen):
+
+        plt.imshow(screen[0][0].to("cpu"), "gray")
+        plt.show()
+
+        recon = self.net.generate(screen)
+
+        plt.imshow(recon[0][0].to("cpu").detach(), "gray")
+        plt.show()
 
     def random_action(self):
         return np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
