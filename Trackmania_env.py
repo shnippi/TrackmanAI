@@ -23,7 +23,7 @@ class Trackmania_env:
 
     def __init__(self):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model_file_name = "E:/code/Python/Trackmania-RL/models/AE_1.model"
+        self.model_file_name = "/models/AE_250_first.model"
         self.net = AE_net()
         self.net.load_state_dict(torch.load(self.model_file_name, map_location=self.device))
         self.net.to(self.device)

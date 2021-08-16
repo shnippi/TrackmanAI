@@ -1,4 +1,4 @@
-from AE_networks import VAE_net, AE_net, AE_net_no_pool, AE_skip
+from AE_networks import VAE_net, VAE_net_64
 import torch
 import numpy as np
 from torchvision import datasets, transforms
@@ -8,8 +8,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 print("testing")
 
-model_file_name = "models/AE_250_first.model"
-net = AE_net()
+model_file_name = "models/VAE.model"
+net = VAE_net_64()
 batch_size = 10
 
 
@@ -22,7 +22,7 @@ def npy_loader(path):
 
 
 test_dataset = datasets.DatasetFolder(
-    root='data_test_250',
+    root='data/data_test_64',
     loader=npy_loader,
     extensions='.npy',
 )
@@ -56,5 +56,5 @@ for idx, data in enumerate(test_loader, 0):
 
 
             # output[0][0][0] since mu and std also get returend, otherwise output[0][0]
-            plt.imshow(output[0][0].to("cpu").detach(), "gray")
+            plt.imshow(output[0][0][0].to("cpu").detach(), "gray")
             plt.show()
