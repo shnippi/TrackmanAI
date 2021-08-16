@@ -32,7 +32,7 @@ def npy_loader(path):
 
 
 dataset = datasets.DatasetFolder(
-    root='data_train',
+    root='data_train_250',
     loader=npy_loader,
     extensions='.npy',
 )

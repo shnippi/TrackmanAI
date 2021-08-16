@@ -125,7 +125,7 @@ class Trackmania_env:
                     "mon": monitor_number,
                 }
 
-                # Grab the data_train
+                # Grab the data_train_250
                 img = np.array(sct.grab(monitor))
                 img = cv2.resize(img, (250, 250))
                 # cv2.imshow('window', cv2.resize(img, (500, 500)))

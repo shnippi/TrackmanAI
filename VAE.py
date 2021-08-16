@@ -1,5 +1,5 @@
 import pathlib
-from AE_networks import VAE_net
+from AE_networks import VAE_net, VAE_net_64
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -33,22 +33,22 @@ def npy_loader(path):
 
 
 train_dataset = datasets.DatasetFolder(
-    root='data_train',
+    root='data/data_train_64',
     loader=npy_loader,
     extensions='.npy',
 )
-
-test_dataset = datasets.DatasetFolder(
-    root='data_test',
-    loader=npy_loader,
-    extensions='.npy',
-)
+#
+# test_dataset = datasets.DatasetFolder(
+#     root='data/data_test_64',
+#     loader=npy_loader,
+#     extensions='.npy',
+# )
 
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
+# test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
 
-net = VAE_net().to(device)
+net = VAE_net_64().to(device)
 optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
 # training loop

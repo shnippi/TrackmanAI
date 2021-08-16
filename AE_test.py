@@ -22,7 +22,7 @@ def npy_loader(path):
 
 
 test_dataset = datasets.DatasetFolder(
-    root='data_test',
+    root='data_test_250',
     loader=npy_loader,
     extensions='.npy',
 )

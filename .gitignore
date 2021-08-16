@@ -1,6 +1,5 @@
 .idea
 __pycache__/
-/data_train
-/data_test
 /SAC/runs
+/data
 .env

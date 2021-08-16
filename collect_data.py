@@ -19,18 +19,19 @@ sd = [0, 0, 0, 0, 0, 0, 0, 1, 0]
 nk = [0, 0, 0, 0, 0, 0, 0, 0, 1]
 
 starting_value = 0
-
+img_dim = 64
+monitor_nr = 2
 
 # starting from the file we left off
 while True:
-    if os.path.isfile('E:/code/Python/Trackmania-RL/data_train/train/training_data-{}.npy'.format(starting_value)):
+    if os.path.isfile('E:/code/Python/Trackmania-RL/data_train_250/train/training_data-{}.npy'.format(starting_value)):
         starting_value += 1
     else:
         print('Starting from file: ', starting_value)
         break
 
-def grab_screen(monitor_nr=1):
 
+def grab_screen(monitor_nr=1):
     if monitor_nr == 1:
         mon = {'left': 0, 'top': 250, 'width': 790, 'height': 350}
         with mss() as sct:
@@ -45,7 +46,7 @@ def grab_screen(monitor_nr=1):
             mon = sct.monitors[monitor_number]
 
             # The screen part to capture
-            monitor = {
+            monitor_full = {
                 "top": mon["top"] + 300,  # 100px from the top
                 "left": mon["left"] + 400,  # 100px from the left
                 "width": 2200,
@@ -53,8 +54,16 @@ def grab_screen(monitor_nr=1):
                 "mon": monitor_number,
             }
 
-            # Grab the data_train
-            img = np.array(sct.grab(monitor))
+            monitor_reduced = {
+                "top": mon["top"] + 800,  # 100px from the top
+                "left": mon["left"] + 400,  # 100px from the left
+                "width": 2200,
+                "height": 700,
+                "mon": monitor_number,
+            }
+
+            # Grab the data_train_250
+            img = np.array(sct.grab(monitor_reduced))
             return cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
 
 
@@ -69,9 +78,9 @@ def main(starting_value):
     while True:
 
         if not paused:
-            screen = grab_screen(monitor_nr=1)
+            screen = grab_screen(monitor_nr=monitor_nr)
             # resize to something a bit more acceptable for a CNN
-            screen = cv2.resize(screen, (250, 250))
+            screen = cv2.resize(screen, (img_dim, img_dim))
             screen = cv2.cvtColor(screen, cv2.COLOR_BGR2RGB)
             training_data.append(screen)
 
@@ -81,8 +90,8 @@ def main(starting_value):
             # output = keys_to_output(keys)
             # training_data.append(screen)
 
-            cv2.imshow('window', cv2.resize(screen, (500, 500)))
-            cv2.waitKey(0)
+            # cv2.imshow('window', cv2.resize(screen, (500, 500)))
+            # cv2.waitKey(0)
 
             # display recorded stream
             if cv2.waitKey(25) & 0xFF == ord('q'):
@@ -91,7 +100,8 @@ def main(starting_value):
 
             if len(training_data) % 100 == 0:
                 if len(training_data) == 500:
-                    file_name = 'E:/code/Python/Trackmania-RL/data_train/train/training_data-{}.npy'.format(starting_value)
+                    file_name = 'E:/code/Python/Trackmania-RL/data/data_train_{}/train/training_data-{}.npy'.format(img_dim,
+                                                                                                               starting_value)
                     np.save(file_name, training_data)
                     print('SAVED file {}'.format(starting_value))
                     training_data = []
