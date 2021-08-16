@@ -1,5 +1,5 @@
 import pathlib
-from AE_networks import VAE_net, VAE_net_64
+from AE_networks import VAE_net, VAE_net_64, VanillaVAE
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -18,7 +18,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 print("training")
 
-batch_size = 10
+batch_size = 16
 learning_rate = 1e-3
 num_epochs = 100
 width = 250
@@ -47,8 +47,7 @@ test_dataset = datasets.DatasetFolder(
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
-
-net = VAE_net_64().to(device)
+net = VanillaVAE().to(device)
 optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
 # training loop
@@ -72,11 +71,15 @@ for epoch in range(num_epochs):
                 # print(batch.shape)
 
                 # Feeding a batch of images into the network to obtain the output image, mu, and logVar
-                out, mu, logVar = net(batch)
+
+                # out, mu, logVar = net(batch)
+                out, original, mu, logVar = net(batch)
+
+                loss, recon_loss, kld_loss = net.loss_function(out, original, mu, logVar, M_N=batch_size / len(train_dataset))
 
                 # The loss is the BCE loss combined with the KL divergence to ensure the distribution is learnt
-                kl_divergence = 0.5 * torch.sum(1 + logVar - mu.pow(2) - logVar.exp())
-                loss = F.binary_cross_entropy(out, batch, reduction='sum') - kl_divergence
+                # kl_divergence = 0.5 * torch.sum(1 + logVar - mu.pow(2) - logVar.exp())
+                # loss = F.binary_cross_entropy(out, batch, reduction='sum') - kl_divergence
 
                 # Backpropagation based on the loss
                 optimizer.zero_grad()
