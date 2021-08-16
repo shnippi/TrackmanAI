@@ -1,4 +1,4 @@
-from AE_networks import VAE_net, VAE_net_64
+from AE_networks import VAE_net, VAE_net_64, VanillaVAE
 import torch
 import numpy as np
 from torchvision import datasets, transforms
@@ -9,8 +9,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print("testing")
 
 model_file_name = "models/VAE.model"
-net = VAE_net_64()
-batch_size = 10
+net = VanillaVAE()
+batch_size = 16
 
 
 def npy_loader(path):
@@ -52,9 +52,9 @@ for idx, data in enumerate(test_loader, 0):
             plt.imshow(batch[0][0].to("cpu"), "gray")
             plt.show()
 
-            output = net(batch)
+            output, original, mu, logVar = net(batch)
 
 
             # output[0][0][0] since mu and std also get returend, otherwise output[0][0]
-            plt.imshow(output[0][0][0].to("cpu").detach(), "gray")
+            plt.imshow(output[0][0].to("cpu").detach(), "gray")
             plt.show()

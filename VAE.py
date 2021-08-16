@@ -73,9 +73,10 @@ for epoch in range(num_epochs):
                 # Feeding a batch of images into the network to obtain the output image, mu, and logVar
 
                 # out, mu, logVar = net(batch)
-                out, original, mu, logVar = net(batch)
+                out, original, mu, logVar = net(batch)  # Vanilla_VAE
 
-                loss, recon_loss, kld_loss = net.loss_function(out, original, mu, logVar, M_N=batch_size / len(train_dataset))
+                loss, recon_loss, kld_loss = net.loss_function(out, original, mu, logVar,
+                                                               M_N=batch_size / 1500000)  # Vanilla_VAE
 
                 # The loss is the BCE loss combined with the KL divergence to ensure the distribution is learnt
                 # kl_divergence = 0.5 * torch.sum(1 + logVar - mu.pow(2) - logVar.exp())

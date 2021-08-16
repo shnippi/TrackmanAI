@@ -1,4 +1,4 @@
-from AE_networks import AE_net
+from AE_networks import AE_net, VanillaVAE
 import torch
 import numpy as np
 import cv2
@@ -18,17 +18,21 @@ S = 0x1F
 D = 0x20
 BACKSPACE = 0x0E
 
+img_dim = 64
+z_dim = 32
+
 
 class Trackmania_env:
 
     def __init__(self):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model_file_name = "/models/AE_250_first.model"
-        self.net = AE_net()
+        self.model_file_name = "../models/VAE_64_first.model"
+        # self.net = AE_net()
+        self.net = VanillaVAE()
         self.net.load_state_dict(torch.load(self.model_file_name, map_location=self.device))
         self.net.to(self.device)
 
-        self.observation_space = torch.zeros(256)
+        self.observation_space = torch.zeros(z_dim)
         self.action_space = TM_actionspace()
 
         # save last measured checkpoint and speed such that if the OCR fails we just take last measured
@@ -85,14 +89,14 @@ class Trackmania_env:
 
         reward = (speed / 150) ** 2 - 0.15
         if cp_reached:
-            reward += 50
+            reward += 100
 
         if speed == 0:
             self.stuck_counter += 1
-            if self.stuck_counter > 30:
+            if self.stuck_counter > 50:
                 self.stuck_counter = 0
                 done = True
-                reward = -100
+                reward = -200
 
         # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
 
@@ -105,7 +109,7 @@ class Trackmania_env:
 
             with mss() as sct:
                 img = np.array(sct.grab(mon))
-                img = cv2.resize(img, (250, 250))
+                img = cv2.resize(img, (img_dim, img_dim))
                 # cv2.imshow('window', cv2.resize(img, (500, 500)))
                 # key = cv2.waitKey(0)
                 screen = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
@@ -127,7 +131,7 @@ class Trackmania_env:
 
                 # Grab the data_train_250
                 img = np.array(sct.grab(monitor))
-                img = cv2.resize(img, (250, 250))
+                img = cv2.resize(img, (img_dim, img_dim))
                 # cv2.imshow('window', cv2.resize(img, (500, 500)))
                 # key = cv2.waitKey(3000)
                 screen = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)

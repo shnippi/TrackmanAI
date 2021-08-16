@@ -16,7 +16,6 @@ import wandb
 from dotenv import load_dotenv
 import msvcrt as m
 
-
 load_dotenv()
 wandb.login()
 
@@ -40,7 +39,7 @@ parser.add_argument('--automatic_entropy_tuning', type=bool, default=False, meta
                     help='Automaically adjust α (default: False)')
 parser.add_argument('--seed', type=int, default=123456, metavar='N',
                     help='random seed (default: 123456)')
-parser.add_argument('--batch_size', type=int, default=128, metavar='N',
+parser.add_argument('--batch_size', type=int, default=256, metavar='N',
                     help='batch size (default: 256)')
 parser.add_argument('--num_steps', type=int, default=1000001, metavar='N',
                     help='maximum number of steps (default: 1000000)')
@@ -48,13 +47,13 @@ parser.add_argument('--hidden_size', type=int, default=256, metavar='N',
                     help='hidden size (default: 256)')
 parser.add_argument('--updates_per_step', type=int, default=1, metavar='N',
                     help='model updates per simulator step (default: 1)')
-parser.add_argument('--start_steps', type=int, default=10, metavar='N',
+parser.add_argument('--start_steps', type=int, default=1000, metavar='N',
                     help='Steps sampling random actions (default: 10000)')
 parser.add_argument('--target_update_interval', type=int, default=1, metavar='N',
                     help='Value target update per no. of updates per step (default: 1)')
 parser.add_argument('--replay_size', type=int, default=1000000, metavar='N',
                     help='size of replay buffer (default: 10000000)')
-parser.add_argument('--cuda', action="store_true",
+parser.add_argument('--cuda', action="store_true", default=True,
                     help='run on CUDA (default: False)')
 
 for i in list(range(3))[::-1]:
@@ -97,6 +96,7 @@ for i_episode in itertools.count(1):
             action = agent.select_action(state)  # Sample action from policy
             # print(action)
 
+        # press P to pause
         keys = key_check()
         if 'P' in keys:
             print("PAUSED")
@@ -157,7 +157,6 @@ for i_episode in itertools.count(1):
             episode_reward = 0
             done = False
             while not done:
-
                 action = agent.select_action(state, evaluate=True)
                 next_state, reward, done, _ = env.step(action)
                 episode_reward += reward
