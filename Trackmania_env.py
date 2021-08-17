@@ -26,7 +26,7 @@ class Trackmania_env:
 
     def __init__(self):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model_file_name = "../models/VAE_64_first.model"
+        self.model_file_name = "../models/VAE_64_100eps_vanilla.model"
         # self.net = AE_net()
         self.net = VanillaVAE()
         self.net.load_state_dict(torch.load(self.model_file_name, map_location=self.device))
@@ -291,8 +291,8 @@ class Trackmania_env:
 
     def show_reconstruction(self, screen):
 
-        plt.imshow(screen[0][0].to("cpu"), "gray")
-        plt.show()
+        # plt.imshow(screen[0][0].to("cpu"), "gray")
+        # plt.show()
 
         recon = self.net.generate(screen)
 
