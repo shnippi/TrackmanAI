@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import datasets, transforms
+from torchvision.transforms import ToTensor, Lambda, Compose
 from torchvision.utils import save_image
 import numpy as np
 import cv2
@@ -16,12 +17,14 @@ torch.cuda.empty_cache()
 gc.collect()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
+# TODO: do this on mnist
+
 print("training")
 
 batch_size = 16
 learning_rate = 1e-3
 num_epochs = 100
-width = 250
+width = 64
 
 
 def npy_loader(path):
@@ -48,6 +51,7 @@ train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size,
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True)
 
 net = VanillaVAE().to(device)
+net.train()
 optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
 # training loop

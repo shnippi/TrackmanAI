@@ -80,7 +80,8 @@ class Trackmania_env:
             PressKey(W)
 
         else:
-            PressKey(S)
+            # PressKey(S)
+            pass
 
         # TODO: squish all values of z between -1 and 1?
         z = np.array(self.get_state_rep())
@@ -91,7 +92,7 @@ class Trackmania_env:
 
         reward = (speed / 150) ** 2 - 0.15
         if cp_reached:
-            reward += 100
+            reward += 50
 
         if speed == 0:
             self.stuck_counter += 1
@@ -99,7 +100,7 @@ class Trackmania_env:
                 self.stuck_counter = 0
                 done = True
                 reward = -200
-                print("oooopsie woopsie stuckie wuckie")
+                # print("oooopsie woopsie stuckie wuckie")
 
         # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
 
