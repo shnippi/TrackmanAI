@@ -46,6 +46,11 @@ train_loader = torch.utils.data.DataLoader(train_mnist, batch_size=batch_size, s
 test_loader = torch.utils.data.DataLoader(test_mnist, batch_size=batch_size, shuffle=True)
 
 net = VanillaVAE().to(device)
+
+model_file_name = "models/VAE_MNIST_100_vanilla.model"
+net.load_state_dict(torch.load(model_file_name, map_location=device))
+net = net.to(device)
+
 optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
 
@@ -75,6 +80,6 @@ for epoch in range(num_epochs):
     print('Epoch {}: Loss {}'.format(epoch, total_loss))
 
     results_dir = pathlib.Path("models")
-    save_dir = results_dir / f"VAE_MNIST.model"
+    save_dir = results_dir / f"VAE_MNIST_100_vanilla.model"
     results_dir.mkdir(parents=True, exist_ok=True)
     torch.save(net.state_dict(), save_dir)

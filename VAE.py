@@ -56,6 +56,7 @@ optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
 
 # training loop
 for epoch in range(num_epochs):
+    total_loss = 0
     for idx, data in enumerate(train_loader, 0):
         imgs, _ = data
         imgs = imgs.to(device)
@@ -80,7 +81,9 @@ for epoch in range(num_epochs):
                 out, original, mu, logVar = net(batch)  # Vanilla_VAE
 
                 loss, recon_loss, kld_loss = net.loss_function(out, original, mu, logVar,
-                                                               M_N=batch_size / 1500000)  # Vanilla_VAE
+                                                               M_N=batch_size / 100000)  # Vanilla_VAE
+
+                total_loss += loss
 
                 # The loss is the BCE loss combined with the KL divergence to ensure the distribution is learnt
                 # kl_divergence = 0.5 * torch.sum(1 + logVar - mu.pow(2) - logVar.exp())
@@ -91,7 +94,7 @@ for epoch in range(num_epochs):
                 loss.backward()
                 optimizer.step()
 
-    print('Epoch {}: Loss {}'.format(epoch, loss))
+    print('Epoch {}: Loss {}'.format(epoch, total_loss))
 
     results_dir = pathlib.Path("models")
     save_dir = results_dir / f"VAE.model"

@@ -8,7 +8,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 print("testing")
 
-model_file_name = "models/VAE_MNIST.model"
+model_file_name = "models/VAE_MNIST_100_vanilla.model"
 net = VanillaVAE()
 batch_size = 16
 
