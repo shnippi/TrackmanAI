@@ -53,6 +53,7 @@ net.train()
 size = len(train_loader.dataset)
 
 for epoch in range(num_epochs):
+    total_loss = 0
     for batch, (x, y) in enumerate(train_loader):
         #
         # print(x.shape)
@@ -64,12 +65,14 @@ for epoch in range(num_epochs):
         loss, recon_loss, kld_loss = net.loss_function(out, original, mu, logVar,
                                                        M_N=batch_size / len(train_loader))
 
+        total_loss += loss
+
         # Backpropagation
         loss.backward()
         optimizer.step()
         optimizer.zero_grad()
 
-    print('Epoch {}: Loss {}'.format(epoch, loss))
+    print('Epoch {}: Loss {}'.format(epoch, total_loss))
 
     results_dir = pathlib.Path("models")
     save_dir = results_dir / f"VAE_MNIST.model"
