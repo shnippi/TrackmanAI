@@ -2,7 +2,6 @@ import argparse
 import datetime
 import os
 
-import gym
 import numpy as np
 import itertools
 import torch
@@ -69,7 +68,7 @@ np.random.seed(args.seed)
 
 # Agent
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
-agent.load_model("models/sac_actor_Trackmania_", "models/sac_critic_Trackmania_")
+agent.load_model("models/sac_actor_Trackmania_attempt1", "models/sac_critic_Trackmania_attempt1")
 
 # Tesnorboard
 writer = SummaryWriter(

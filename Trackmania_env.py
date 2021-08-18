@@ -26,8 +26,7 @@ class Trackmania_env:
 
     def __init__(self):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model_file_name = "../models/VAE_64_100eps_vanilla.model"
-        # self.net = AE_net()
+        self.model_file_name = "../models/VAE_64_100eps_vanilla_video.model"
         self.net = VanillaVAE()
         self.net.load_state_dict(torch.load(self.model_file_name, map_location=self.device))
         self.net.to(self.device)
@@ -39,7 +38,7 @@ class Trackmania_env:
         self.cp = [""]
         self.first_cp_predict_counter = 0
         self.speed = 0
-        self.time = ""
+        self.start_time = 0
         self.stuck_counter = 0
 
     def reset(self):
@@ -50,7 +49,7 @@ class Trackmania_env:
         self.cp = [""]
         self.first_cp_predict_counter = 0
         self.speed = 0
-        self.time = ""
+        self.start_time = time.time()
         self.stuck_counter = 0
 
         # print("RESETTING...")
@@ -99,7 +98,7 @@ class Trackmania_env:
             if self.stuck_counter > 30:
                 self.stuck_counter = 0
                 done = True
-                reward = 0
+                reward = min(- 50 + time.time() - self.start_time, 0)
                 # print("oooopsie woopsie stuckie wuckie")
 
         # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
@@ -154,7 +153,7 @@ class Trackmania_env:
         # plt.imshow(output[0][0].to("cpu"), "gray")
         # plt.show()
 
-        # self.show_reconstruction(screen)
+        self.show_reconstruction(screen)
 
         z = self.net.get_z(screen)
         z = torch.squeeze(z)
@@ -221,7 +220,7 @@ class Trackmania_env:
             elif cp == [""] and self.cp[0] == "0":
                 self.first_cp_predict_counter += 1
 
-                if self.first_cp_predict_counter >= 30:
+                if self.first_cp_predict_counter >= 15:
                     print("checkpoint!")
                     cp_reached = True
                     self.cp[0] = "1"
@@ -279,7 +278,6 @@ class Trackmania_env:
                 if i.isdigit():
                     time += i
 
-            print(self.speed)
 
             # check if OCR worked, else take old value
             if time:
@@ -291,13 +289,10 @@ class Trackmania_env:
 
     def show_reconstruction(self, screen):
 
-        # plt.imshow(screen[0][0].to("cpu"), "gray")
-        # plt.show()
-
         recon = self.net.generate(screen)
-
-        plt.imshow(recon[0][0].to("cpu").detach(), "gray")
-        plt.show()
+        recon = np.array(recon.detach().to("cpu"))
+        cv2.imshow('window', cv2.resize(recon[0][0], (500, 500)))
+        cv2.waitKey(10)
 
     def random_action(self):
         return np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
