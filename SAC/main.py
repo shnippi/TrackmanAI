@@ -69,6 +69,7 @@ np.random.seed(args.seed)
 
 # Agent
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
+agent.load_model("models/sac_actor_Trackmania_", "models/sac_critic_Trackmania_")
 
 # Tesnorboard
 writer = SummaryWriter(
@@ -151,7 +152,7 @@ for i_episode in itertools.count(1):
 
     if i_episode % 10 == 0 and args.eval is True:
         avg_reward = 0.
-        episodes = 10
+        episodes = 3
         for _ in range(episodes):
             state = env.reset()
             episode_reward = 0
@@ -169,3 +170,5 @@ for i_episode in itertools.count(1):
         print("----------------------------------------")
         print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
         print("----------------------------------------")
+
+        agent.save_model("Trackmania")

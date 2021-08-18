@@ -20,11 +20,12 @@ nk = [0, 0, 0, 0, 0, 0, 0, 0, 1]
 
 starting_value = 0
 img_dim = 64
-monitor_nr = 2
+monitor_nr = 1
+file_tag = "game"
 
 # starting from the file we left off
 while True:
-    if os.path.isfile('E:/code/Python/Trackmania-RL/data_train_250/train/training_data-{}.npy'.format(starting_value)):
+    if os.path.isfile('E:/code/Python/Trackmania-RL/data_train_250_video/train/training_data-{}.npy'.format(starting_value)):
         starting_value += 1
     else:
         print('Starting from file: ', starting_value)
@@ -62,7 +63,7 @@ def grab_screen(monitor_nr=1):
                 "mon": monitor_number,
             }
 
-            # Grab the data_train_250
+            # Grab the data_train_250_video
             img = np.array(sct.grab(monitor_reduced))
             return cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
 
@@ -100,7 +101,7 @@ def main(starting_value):
 
             if len(training_data) % 100 == 0:
                 if len(training_data) == 500:
-                    file_name = 'E:/code/Python/Trackmania-RL/data/data_train_{}/train/training_data-{}.npy'.format(img_dim,
+                    file_name = 'E:/code/Python/Trackmania-RL/data/data_train_{}_{}/train/training_data-{}.npy'.format(img_dim, file_tag,
                                                                                                                starting_value)
                     np.save(file_name, training_data)
                     print('SAVED file {}'.format(starting_value))
@@ -108,7 +109,7 @@ def main(starting_value):
                     starting_value += 1
 
         keys = key_check()
-        if 'T' in keys:
+        if 'P' in keys:
             if paused:
                 paused = False
                 print('unpaused!')

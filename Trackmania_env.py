@@ -92,14 +92,14 @@ class Trackmania_env:
 
         reward = (speed / 150) ** 2 - 0.15
         if cp_reached:
-            reward += 50
+            reward += 20
 
         if speed == 0:
             self.stuck_counter += 1
             if self.stuck_counter > 30:
                 self.stuck_counter = 0
                 done = True
-                reward = -200
+                reward = 0
                 # print("oooopsie woopsie stuckie wuckie")
 
         # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
@@ -133,7 +133,7 @@ class Trackmania_env:
                     "mon": monitor_number,
                 }
 
-                # Grab the data_train_250
+                # Grab the data_train_250_video
                 img = np.array(sct.grab(monitor))
                 img = cv2.resize(img, (img_dim, img_dim))
                 # cv2.imshow('window', cv2.resize(img, (500, 500)))
@@ -209,7 +209,7 @@ class Trackmania_env:
                     self.cp = cp
 
                 # checkpoint reached, only update checkpoint value upon reaching checkpoint.
-                if cp[0] != self.cp[0] and cp[0] != "0" and int(cp[0]) % int(cp[1]) == (int(self.cp[0]) + 1) % int(
+                if cp[0] != self.cp[0] and cp[0] != "0" and int(cp[0]) % int(self.cp[1]) == (int(self.cp[0]) + 1) % int(
                         cp[1]):
                     print("checkpoint!")
                     cp_reached = True

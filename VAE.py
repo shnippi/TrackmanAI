@@ -17,8 +17,6 @@ torch.cuda.empty_cache()
 gc.collect()
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# TODO: do this on mnist
-
 print("training")
 
 batch_size = 16
@@ -36,16 +34,18 @@ def npy_loader(path):
 
 
 train_dataset = datasets.DatasetFolder(
-    root='data/data_train_64',
+    root='data/data_train_64_game',
     loader=npy_loader,
     extensions='.npy',
 )
 
-test_dataset = datasets.DatasetFolder(
-    root='data/data_test_64',
-    loader=npy_loader,
-    extensions='.npy',
-)
+# test_dataset = datasets.DatasetFolder(
+#     root='data/data_test_64_video',
+#     loader=npy_loader,
+#     extensions='.npy',
+# )
+
+test_dataset = train_dataset
 
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=True)

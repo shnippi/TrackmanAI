@@ -22,7 +22,7 @@ def npy_loader(path):
 
 
 test_dataset = datasets.DatasetFolder(
-    root='data/data_test_64',
+    root='data/data_test_64_game',
     loader=npy_loader,
     extensions='.npy',
 )
@@ -42,10 +42,6 @@ for idx, data in enumerate(test_loader, 0):
 
     for file in imgs:
         file = file / 256
-
-        # print(file.shape)
-        # plt.imshow(file[0][0].to("cpu"), "gray")
-        # plt.show()
 
         # iterate over batch
         for batch in torch.split(file, batch_size):
