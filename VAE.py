@@ -57,6 +57,8 @@ def make(config):
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=config.batch_size, shuffle=True)
 
     net = VanillaVAE().to(device)
+    print("loading")
+    net.load_state_dict(torch.load("models/VAE.model"))
     optimizer = torch.optim.Adam(net.parameters(), lr=config.learning_rate)
 
     return net, train_loader, test_loader, optimizer
@@ -93,6 +95,9 @@ def train(net, train_loader, optimizer, config):
 
                     loss, recon_loss, kld_loss = net.loss_function(out, original, mu, logVar,
                                                                    M_N=config.beta)  # Vanilla_VAE
+
+                    # TODO: only going for recon loss now
+                    loss = recon_loss
 
                     total_loss += loss
 

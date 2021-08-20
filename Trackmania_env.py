@@ -26,7 +26,7 @@ class Trackmania_env:
 
     def __init__(self):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model_file_name = "../models/VAE_64_100eps_vanilla_video.model"
+        self.model_file_name = "../models/VAE_64_100eps_vanilla_recon_game.model"
         self.net = VanillaVAE()
         self.net.load_state_dict(torch.load(self.model_file_name, map_location=self.device))
         self.net.to(self.device)
