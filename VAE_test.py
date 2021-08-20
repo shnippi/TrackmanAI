@@ -50,7 +50,6 @@ for idx, data in enumerate(test_loader, 0):
 
             output, original, mu, logVar = net(batch)
 
-
             # output[0][0][0] since mu and std also get returend, otherwise output[0][0]
             plt.imshow(output[0][0].to("cpu").detach(), "gray")
             plt.show()

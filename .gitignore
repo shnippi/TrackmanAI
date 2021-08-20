@@ -3,3 +3,4 @@ __pycache__/
 /SAC/runs
 /data
 .env
+/wandb
