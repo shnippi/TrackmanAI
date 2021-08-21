@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 from directkeys import PressKey, ReleaseKey
 import random
 import pytesseract
+import sys
 
 pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
 
@@ -45,7 +46,8 @@ class Trackmania_env:
         self.speed = 0
         self.start_time = 0
         self.stuck_counter = 0
-        self.update_counter = 0
+
+        self.cp1_numbers, self.cp2_numbers = self.load_cp_numbers()
 
         self.update_time = 0
 
@@ -93,16 +95,9 @@ class Trackmania_env:
         z = np.array(self.get_state_rep())
         # print(z)
 
-        # TODO: pytesseract is slow af, maybe train a model to classify the numbers.....
-        if self.update_counter % 3 == 0:
-            speed = self.get_speed()
-            cp, cp_reached = self.get_cp()
-        else:
-            speed = self.speed
-            cp = self.cp
-            cp_reached = False
-
-        self.update_counter += 1
+        # TODO: maybe train the model with printed digits instead of handwritten
+        speed = self.get_speed()
+        cp, cp_reached = self.get_cp()
 
         reward = (speed / 150) ** 2 - 0.15
         if cp_reached:
@@ -177,72 +172,72 @@ class Trackmania_env:
         z = z.detach().to("cpu")
         return z
 
-    # TODO: doest recognize 1
+    # TODO: train MNIST on own dataset
     # TODO: better checkpoint safetyguards (can only increment by 1 etc)
     def get_cp(self):
 
         cp_reached = False
 
-        mon = {'left': 350, 'top': 550, 'width': 100, 'height': 30}
+        mon = {'left': 370, 'top': 550, 'width': 60, 'height': 28}
+        cp1 = np.zeros((28, 28))
+        cp2 = np.zeros((28, 28))
+        cp_list = []
+        cp = []
 
         with mss() as sct:
+
             img = np.array(sct.grab(mon))
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
             img = (img > 250) * img  # only take the pure white part of image (where the values are displayed)
-            img = cv2.resize(img, (200, 60))
+            np.set_printoptions(threshold=sys.maxsize)
 
-            cp_reached = False
-
-            # first = img[:, 40:85]
-            # first = cv2.resize(first, (28, 28))
-            # string = pytesseract.image_to_string(first)
-            # print(string)
-            # cv2.imshow("result",first)
+            # cv2.imshow("result", img[:, 37:])
             # cv2.waitKey(0)
 
-            # cv2.imshow("result",img)
-            # cv2.waitKey(0)
+            cp1[:, 4:24] = img[:, :20]
+            cp_list.append(cp1)
+            cp2[:, 3:26] = img[:, 37:]
+            cp_list.append(cp2)
 
-            string = pytesseract.image_to_string(img)
-            cp = ""
-            for i in string:
-                if i.isdigit() or i == "/":
-                    cp += i
+            # using mnist model
+            # for digit in cp_list:
+            #     if np.amax(digit) > 240:
+            #         digit = torch.from_numpy(digit).float()
+            #         digit = digit / 256
+            #         digit = torch.unsqueeze(digit, 0)
+            #         digit = torch.unsqueeze(digit, 0)
+            #         digit = digit.to(self.device)
+            #         pred = self.MNIST_net(digit)
+            #         pred = pred.argmax(1).item()
+            #
+            #         # TODO: this is yikes
+            #         if pred == 7:
+            #             pred = 1
+            #         # print(pred.argmax(1))dw
+            #         cp.append(str(pred))
 
-            # print(cp.split("/"))
-            # print(self.cp)
-            cp = cp.split("/")
-            # print(cp)
+            pred = None
+            sum_diff = 100000
+            for index in range(len(self.cp1_numbers)):
+                diff = np.sum(np.absolute(cp1 - self.cp1_numbers[index]))
+                if diff < sum_diff:
+                    sum_diff = diff
+                    pred = index
+            cp.append(str(pred))
 
-            # check if "/" got recognized as a number
-            if len(cp) == 1:
-                cp = [""]
+            pred = None
+            sum_diff = 100000
+            for index in range(len(self.cp2_numbers)):
+                diff = np.sum(np.absolute(cp2 - self.cp2_numbers[index]))
+                if diff < sum_diff:
+                    sum_diff = diff
+                    pred = index
+            cp.append(str(pred))
 
-            # if the ocr picked sth up
-            if cp != [""] and cp[0] != "" and cp[1] != "":
-
-                if self.cp == [""]:
-                    self.cp = cp
-
-                # checkpoint reached, only update checkpoint value upon reaching checkpoint.
-                if cp[0] != self.cp[0] and cp[0] != "0" and int(cp[0]) % int(self.cp[1]) == (int(self.cp[0]) + 1) % int(
-                        cp[1]):
-                    print("checkpoint!")
-                    cp_reached = True
-                    self.cp = cp
-
-                return self.cp, cp_reached
-
-            # try to predict if it hit first cp
-            elif cp == [""] and self.cp[0] == "0":
-                self.first_cp_predict_counter += 1
-
-                if self.first_cp_predict_counter >= 15:
-                    print("checkpoint!")
-                    cp_reached = True
-                    self.cp[0] = "1"
-
-                    return self.cp, cp_reached
+            if cp[0] != "0" and cp != self.cp:
+                print("checkpoint!")
+                cp_reached = True
+            self.cp = cp
 
             return self.cp, cp_reached
 
@@ -260,6 +255,7 @@ class Trackmania_env:
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
             img = (img > 150) * img  # only take the pure white part of image (where the values are displayed)
 
+            # pad the images to 28x28
             digit1[:, 5:22] = img[:, :17]
             digits.append(digit1)
             digit2[:, 7:20] = img[:, 17:30]
@@ -267,6 +263,7 @@ class Trackmania_env:
             digit3[:, 8:20] = img[:, 30:42]
             digits.append(digit3)
 
+            # read speed with MNIST model
             for digit in digits:
                 if np.amax(digit) > 240:
                     digit = torch.from_numpy(digit).float()
@@ -275,10 +272,16 @@ class Trackmania_env:
                     digit = torch.unsqueeze(digit, 0)
                     digit = digit.to(self.device)
                     pred = self.MNIST_net(digit)
+                    pred = pred.argmax(1).item()
+
+                    # TODO: this is yikes
+                    if pred == 7:
+                        pred = 1
                     # print(pred.argmax(1))dw
-                    speed += str(pred.argmax(1).item())
+                    speed += str(pred)
 
             print(speed)
+
             # img = cv2.resize(img, (240, 120))
             # cv2.imshow("result", img)
             # cv2.waitKey(0)
@@ -291,12 +294,15 @@ class Trackmania_env:
             # print(self.speed)
 
             # check if OCR worked, else take old value
-            if speed:
-                self.speed = int(speed)
-                return self.speed
-            else:
-                self.speed = max(self.speed - 5, 0)
-                return self.speed
+            # if speed:
+            #     self.speed = int(speed)
+            #     return self.speed
+            # else:
+            #     self.speed = max(self.speed - 5, 0)
+            #     return self.speed
+
+            self.speed = int(speed)
+            return self.speed
 
     def get_time(self):
 
@@ -335,6 +341,21 @@ class Trackmania_env:
 
     def random_action(self):
         return np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
+
+    def load_cp_numbers(self):
+        cp1_numbers = [np.load("data/checkpoint_digits/zero1.npy"), np.load("data/checkpoint_digits/one1.npy"),
+                       np.load("data/checkpoint_digits/two1.npy"), np.load("data/checkpoint_digits/three1.npy"),
+                       np.load("data/checkpoint_digits/four1.npy"), np.load("data/checkpoint_digits/five1.npy"),
+                       np.load("data/checkpoint_digits/six1.npy"), np.load("data/checkpoint_digits/seven1.npy"),
+                       np.load("data/checkpoint_digits/eight1.npy"), np.load("data/checkpoint_digits/nine1.npy")]
+
+        cp2_numbers = [np.load("data/checkpoint_digits/zero2.npy"), np.load("data/checkpoint_digits/one2.npy"),
+                       np.load("data/checkpoint_digits/two2.npy"), np.load("data/checkpoint_digits/three2.npy"),
+                       np.load("data/checkpoint_digits/four2.npy"), np.load("data/checkpoint_digits/five2.npy"),
+                       np.load("data/checkpoint_digits/six2.npy"), np.load("data/checkpoint_digits/seven2.npy"),
+                       np.load("data/checkpoint_digits/eight2.npy"), np.load("data/checkpoint_digits/nine2.npy")]
+
+        return cp1_numbers, cp2_numbers
 
 
 class TM_actionspace():
