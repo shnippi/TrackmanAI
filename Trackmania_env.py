@@ -27,12 +27,12 @@ class Trackmania_env:
 
     def __init__(self):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.VAE_model_file_name = "models/VAE_64_100eps_vanilla_recon_game.model"
+        self.VAE_model_file_name = "../models/VAE_64_100eps_vanilla_recon_game.model"
         self.VAE_net = VanillaVAE()
         self.VAE_net.load_state_dict(torch.load(self.VAE_model_file_name, map_location=self.device))
         self.VAE_net.to(self.device)
 
-        self.MNIST_model_file_name = "models/MNIST_classifier.model"
+        self.MNIST_model_file_name = "../models/MNIST_classifier.model"
         self.MNIST_net = LeNet_plus_plus()
         self.MNIST_net.load_state_dict(torch.load(self.MNIST_model_file_name, map_location=self.device))
         self.MNIST_net.to(self.device)
@@ -42,7 +42,8 @@ class Trackmania_env:
 
         # save last measured checkpoint and speed such that if the OCR fails we just take last measured
         self.cp = [""]
-        self.first_cp_predict_counter = 0
+        self.cp_predict_counter = 0
+        self.cp_predict = [""]
         self.speed = 0
         self.start_time = 0
         self.stuck_counter = 0
@@ -57,7 +58,7 @@ class Trackmania_env:
         ReleaseKey(BACKSPACE)
 
         self.cp = [""]
-        self.first_cp_predict_counter = 0
+        self.cp_predict_counter = 0
         self.speed = 0
         self.start_time = time.time()
         self.stuck_counter = 0
@@ -103,17 +104,17 @@ class Trackmania_env:
         if cp_reached:
             reward += 20
 
-        if speed == 0:
+        if speed < 5:
             self.stuck_counter += 1
-            if self.stuck_counter > 30:
+            if self.stuck_counter > 50:
                 self.stuck_counter = 0
                 done = True
                 reward = min(- 50 + time.time() - self.start_time, 0)
                 # print("oooopsie woopsie stuckie wuckie")
+        else:
+            self.stuck_counter = 0
 
         # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
-        print(time.time() - self.update_time)
-        self.update_time = time.time()
 
         return z, reward, done, None
 
@@ -216,7 +217,8 @@ class Trackmania_env:
             #         # print(pred.argmax(1))dw
             #         cp.append(str(pred))
 
-            pred = None
+            # using pixel differences
+            pred = ""
             sum_diff = 100000
             for index in range(len(self.cp1_numbers)):
                 diff = np.sum(np.absolute(cp1 - self.cp1_numbers[index]))
@@ -225,7 +227,7 @@ class Trackmania_env:
                     pred = index
             cp.append(str(pred))
 
-            pred = None
+            pred = ""
             sum_diff = 100000
             for index in range(len(self.cp2_numbers)):
                 diff = np.sum(np.absolute(cp2 - self.cp2_numbers[index]))
@@ -234,10 +236,16 @@ class Trackmania_env:
                     pred = index
             cp.append(str(pred))
 
-            if cp[0] != "0" and cp != self.cp:
-                print("checkpoint!")
-                cp_reached = True
-            self.cp = cp
+            # print(cp)
+            # print(self.cp_predict_counter)
+
+            if cp[0] != "" and cp[0] != "0" and cp != self.cp:
+                self.cp_predict_counter += 1
+                if self.cp_predict_counter > 10:
+                    # print("checkpoint!")
+                    self.cp_predict_counter = 0
+                    cp_reached = True
+                    self.cp = cp
 
             return self.cp, cp_reached
 
@@ -280,8 +288,6 @@ class Trackmania_env:
                     # print(pred.argmax(1))dw
                     speed += str(pred)
 
-            print(speed)
-
             # img = cv2.resize(img, (240, 120))
             # cv2.imshow("result", img)
             # cv2.waitKey(0)
@@ -301,7 +307,9 @@ class Trackmania_env:
             #     self.speed = max(self.speed - 5, 0)
             #     return self.speed
 
-            self.speed = int(speed)
+            if speed:
+                self.speed = int(speed)
+
             return self.speed
 
     def get_time(self):
@@ -343,17 +351,17 @@ class Trackmania_env:
         return np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
 
     def load_cp_numbers(self):
-        cp1_numbers = [np.load("data/checkpoint_digits/zero1.npy"), np.load("data/checkpoint_digits/one1.npy"),
-                       np.load("data/checkpoint_digits/two1.npy"), np.load("data/checkpoint_digits/three1.npy"),
-                       np.load("data/checkpoint_digits/four1.npy"), np.load("data/checkpoint_digits/five1.npy"),
-                       np.load("data/checkpoint_digits/six1.npy"), np.load("data/checkpoint_digits/seven1.npy"),
-                       np.load("data/checkpoint_digits/eight1.npy"), np.load("data/checkpoint_digits/nine1.npy")]
+        cp1_numbers = [np.load("../data/checkpoint_digits/zero1.npy"), np.load("../data/checkpoint_digits/one1.npy"),
+                       np.load("../data/checkpoint_digits/two1.npy"), np.load("../data/checkpoint_digits/three1.npy"),
+                       np.load("../data/checkpoint_digits/four1.npy"), np.load("../data/checkpoint_digits/five1.npy"),
+                       np.load("../data/checkpoint_digits/six1.npy"), np.load("../data/checkpoint_digits/seven1.npy"),
+                       np.load("../data/checkpoint_digits/eight1.npy"), np.load("../data/checkpoint_digits/nine1.npy")]
 
-        cp2_numbers = [np.load("data/checkpoint_digits/zero2.npy"), np.load("data/checkpoint_digits/one2.npy"),
-                       np.load("data/checkpoint_digits/two2.npy"), np.load("data/checkpoint_digits/three2.npy"),
-                       np.load("data/checkpoint_digits/four2.npy"), np.load("data/checkpoint_digits/five2.npy"),
-                       np.load("data/checkpoint_digits/six2.npy"), np.load("data/checkpoint_digits/seven2.npy"),
-                       np.load("data/checkpoint_digits/eight2.npy"), np.load("data/checkpoint_digits/nine2.npy")]
+        cp2_numbers = [np.load("../data/checkpoint_digits/zero2.npy"), np.load("../data/checkpoint_digits/one2.npy"),
+                       np.load("../data/checkpoint_digits/two2.npy"), np.load("../data/checkpoint_digits/three2.npy"),
+                       np.load("../data/checkpoint_digits/four2.npy"), np.load("../data/checkpoint_digits/five2.npy"),
+                       np.load("../data/checkpoint_digits/six2.npy"), np.load("../data/checkpoint_digits/seven2.npy"),
+                       np.load("../data/checkpoint_digits/eight2.npy"), np.load("../data/checkpoint_digits/nine2.npy")]
 
         return cp1_numbers, cp2_numbers
 
