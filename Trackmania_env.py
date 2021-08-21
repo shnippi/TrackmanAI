@@ -69,6 +69,7 @@ class Trackmania_env:
 
         return np.array(self.get_state_rep())
 
+    # TODO: what to do when he finished a track
     def step(self, action):
 
         done = False
@@ -84,7 +85,7 @@ class Trackmania_env:
         else:
             PressKey(A)
 
-        # TODO: currently only going forward
+        # currently only going forward
         if action[1] >= 0:
             PressKey(W)
 
@@ -92,7 +93,6 @@ class Trackmania_env:
             # PressKey(S)
             pass
 
-        # TODO: squish all values of z between -1 and 1?
         z = np.array(self.get_state_rep())
         # print(z)
 
