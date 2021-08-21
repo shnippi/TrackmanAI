@@ -1,63 +1,43 @@
-import pathlib
-from networks import VAE_net, VAE_net_64, VanillaVAE
-import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from torchvision import datasets, transforms
+import torch
+from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split, Subset
+from torchvision import datasets
 from torchvision.transforms import ToTensor, Lambda, Compose
-from torchvision.utils import save_image
-import numpy as np
-import cv2
-import time
-from PIL import Image
-from matplotlib import pyplot as plt
-import gc
+import pathlib
+from networks import LeNet_plus_plus
 
-torch.cuda.empty_cache()
-gc.collect()
+batch_size = 128
+epochs = 100
+learning_rate = 0.01
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-print("training")
-
-batch_size = 16
-learning_rate = 1e-3
-num_epochs = 100
-width = 64
 
 train_mnist = datasets.MNIST(
     root="data",
     train=True,
     download=True,
-    transform=transforms.Compose(
-        [transforms.Resize(64), transforms.ToTensor()]
-    ),
+    transform=ToTensor(),
 )
 
 test_mnist = datasets.MNIST(
     root="data",
     train=False,
     download=True,
-    transform=transforms.Compose(
-        [transforms.Resize(64), transforms.ToTensor()]
-    ),
+    transform=ToTensor(),
 )
 
 train_loader = torch.utils.data.DataLoader(train_mnist, batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(test_mnist, batch_size=batch_size, shuffle=True)
 
-net = VanillaVAE().to(device)
-
-model_file_name = "models/VAE_MNIST_100_vanilla.model"
-net.load_state_dict(torch.load(model_file_name, map_location=device))
+net = LeNet_plus_plus().to(device)
 net = net.to(device)
 
 optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
-
+loss_fn = nn.CrossEntropyLoss()
 
 net.train()
-size = len(train_loader.dataset)
 
-for epoch in range(num_epochs):
+for epoch in range(epochs):
     total_loss = 0
     for batch, (x, y) in enumerate(train_loader):
         #
@@ -66,9 +46,9 @@ for epoch in range(num_epochs):
         # plt.show()
 
         x, y = x.to(device), y.to(device)
-        out, original, mu, logVar = net(x)
-        loss, recon_loss, kld_loss = net.loss_function(out, original, mu, logVar,
-                                                       M_N=batch_size / len(train_loader))
+        print(x)
+        pred = net(x)
+        loss = loss_fn(pred, y)
 
         total_loss += loss
 
@@ -80,6 +60,6 @@ for epoch in range(num_epochs):
     print('Epoch {}: Loss {}'.format(epoch, total_loss))
 
     results_dir = pathlib.Path("models")
-    save_dir = results_dir / f"VAE_MNIST_100_vanilla.model"
+    save_dir = results_dir / f"MNIST_classifier_training.model"
     results_dir.mkdir(parents=True, exist_ok=True)
     torch.save(net.state_dict(), save_dir)

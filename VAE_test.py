@@ -1,4 +1,4 @@
-from AE_networks import VAE_net, VAE_net_64, VanillaVAE
+from networks import VAE_net, VAE_net_64, VanillaVAE
 import torch
 import numpy as np
 from torchvision import datasets, transforms

@@ -1,4 +1,4 @@
-from AE_networks import AE_net, VanillaVAE
+from networks import AE_net, VanillaVAE, LeNet_plus_plus
 import torch
 import numpy as np
 import cv2
@@ -26,10 +26,15 @@ class Trackmania_env:
 
     def __init__(self):
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model_file_name = "../models/VAE_64_100eps_vanilla_recon_game.model"
-        self.net = VanillaVAE()
-        self.net.load_state_dict(torch.load(self.model_file_name, map_location=self.device))
-        self.net.to(self.device)
+        self.VAE_model_file_name = "models/VAE_64_100eps_vanilla_recon_game.model"
+        self.VAE_net = VanillaVAE()
+        self.VAE_net.load_state_dict(torch.load(self.VAE_model_file_name, map_location=self.device))
+        self.VAE_net.to(self.device)
+
+        self.MNIST_model_file_name = "models/MNIST_classifier.model"
+        self.MNIST_net = LeNet_plus_plus()
+        self.MNIST_net.load_state_dict(torch.load(self.MNIST_model_file_name, map_location=self.device))
+        self.MNIST_net.to(self.device)
 
         self.observation_space = torch.zeros(z_dim)
         self.action_space = TM_actionspace()
@@ -40,6 +45,9 @@ class Trackmania_env:
         self.speed = 0
         self.start_time = 0
         self.stuck_counter = 0
+        self.update_counter = 0
+
+        self.update_time = 0
 
     def reset(self):
         # reset
@@ -62,7 +70,6 @@ class Trackmania_env:
 
         done = False
 
-        # TODO: instead of sleep do sth better, such that no idle time of code
         ReleaseKey(D)
         PressKey(A)
         ReleaseKey(W)
@@ -86,8 +93,16 @@ class Trackmania_env:
         z = np.array(self.get_state_rep())
         # print(z)
 
-        speed = self.get_speed()
-        cp, cp_reached = self.get_cp()
+        # TODO: pytesseract is slow af, maybe train a model to classify the numbers.....
+        if self.update_counter % 3 == 0:
+            speed = self.get_speed()
+            cp, cp_reached = self.get_cp()
+        else:
+            speed = self.speed
+            cp = self.cp
+            cp_reached = False
+
+        self.update_counter += 1
 
         reward = (speed / 150) ** 2 - 0.15
         if cp_reached:
@@ -102,6 +117,8 @@ class Trackmania_env:
                 # print("oooopsie woopsie stuckie wuckie")
 
         # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
+        print(time.time() - self.update_time)
+        self.update_time = time.time()
 
         return z, reward, done, None
 
@@ -155,7 +172,7 @@ class Trackmania_env:
 
         self.show_reconstruction(screen)
 
-        z = self.net.get_z(screen)
+        z = self.VAE_net.get_z(screen)
         z = torch.squeeze(z)
         z = z.detach().to("cpu")
         return z
@@ -231,22 +248,45 @@ class Trackmania_env:
 
     def get_speed(self):
 
-        mon = {'left': 550, 'top': 260, 'width': 60, 'height': 30}
+        mon = {'left': 550, 'top': 260, 'width': 60, 'height': 28}
+        digits = []
+        speed = ""
+        digit1 = np.zeros((28, 28))
+        digit2 = np.zeros((28, 28))
+        digit3 = np.zeros((28, 28))
 
         with mss() as sct:
             img = np.array(sct.grab(mon))
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
             img = (img > 150) * img  # only take the pure white part of image (where the values are displayed)
-            img = cv2.resize(img, (240, 120))
 
-            # cv2.imshow("result",img)
+            digit1[:, 5:22] = img[:, :17]
+            digits.append(digit1)
+            digit2[:, 7:20] = img[:, 17:30]
+            digits.append(digit2)
+            digit3[:, 8:20] = img[:, 30:42]
+            digits.append(digit3)
+
+            for digit in digits:
+                if np.amax(digit) > 240:
+                    digit = torch.from_numpy(digit).float()
+                    digit = digit / 256
+                    digit = torch.unsqueeze(digit, 0)
+                    digit = torch.unsqueeze(digit, 0)
+                    digit = digit.to(self.device)
+                    pred = self.MNIST_net(digit)
+                    # print(pred.argmax(1))dw
+                    speed += str(pred.argmax(1).item())
+
+            print(speed)
+            # img = cv2.resize(img, (240, 120))
+            # cv2.imshow("result", img)
             # cv2.waitKey(0)
-
-            string = pytesseract.image_to_string(img)
-            speed = ""
-            for i in string:
-                if i.isdigit():
-                    speed += i
+            #
+            # string = pytesseract.image_to_string(img)
+            # for i in string:
+            #     if i.isdigit():
+            #         speed += i
             # print(speed)
             # print(self.speed)
 
@@ -278,7 +318,6 @@ class Trackmania_env:
                 if i.isdigit():
                     time += i
 
-
             # check if OCR worked, else take old value
             if time:
                 self.speed = int(time)
@@ -289,7 +328,7 @@ class Trackmania_env:
 
     def show_reconstruction(self, screen):
 
-        recon = self.net.generate(screen)
+        recon = self.VAE_net.generate(screen)
         recon = np.array(recon.detach().to("cpu"))
         cv2.imshow('window', cv2.resize(recon[0][0], (500, 500)))
         cv2.waitKey(10)

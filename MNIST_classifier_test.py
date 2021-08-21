@@ -1,4 +1,6 @@
-from networks import VAE_net, VAE_net_64, VanillaVAE
+import time
+
+from networks import LeNet_plus_plus
 import torch
 import numpy as np
 from torchvision import datasets, transforms
@@ -8,17 +10,15 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 print("testing")
 
-model_file_name = "models/VAE_MNIST_100_vanilla.model"
-net = VanillaVAE()
-batch_size = 16
+model_file_name = "models/MNIST_classifier.model"
+net = LeNet_plus_plus()
+batch_size = 128
 
 test_mnist = datasets.MNIST(
     root="data",
     train=False,
     download=True,
-    transform=transforms.Compose(
-        [transforms.Resize(64), transforms.ToTensor()]
-    ),
+    transform=transforms.ToTensor(),
 )
 test_loader = torch.utils.data.DataLoader(test_mnist, batch_size=batch_size, shuffle=True)
 
@@ -27,15 +27,12 @@ net = net.to(device)
 net.eval()
 
 for batch, (x, y) in enumerate(test_loader):
-
-
     x, y = x.to(device), y.to(device)
-    plt.imshow(x[0][0].to("cpu"), "gray")
-    plt.show()
 
-    output, original, mu, logVar = net(x)
+    pred = net(x)
 
+    print(pred.argmax(1))
+    print(y)
+    print((pred.argmax(1) == y).type(torch.float).sum().item())  # how many correct
 
-    # output[0][0][0] since mu and std also get returend, otherwise output[0][0]
-    plt.imshow(output[0][0].to("cpu").detach(), "gray")
-    plt.show()
+    time.sleep(100)

@@ -11,7 +11,7 @@ import time
 from PIL import Image
 from matplotlib import pyplot as plt
 import gc
-from AE_networks import AE_net, AE_net_no_pool, AE_skip
+from networks import AE_net, AE_net_no_pool, AE_skip
 
 torch.cuda.empty_cache()
 gc.collect()

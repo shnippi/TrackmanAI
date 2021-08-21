@@ -9,7 +9,7 @@ frametime = 0
 env = Trackmania_env()
 while True:
     frametime = time.time()
-    env.get_cp()
+    env.get_speed()
     print(time.time() - frametime)
 
 

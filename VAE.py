@@ -1,5 +1,5 @@
 import pathlib
-from AE_networks import VAE_net, VAE_net_64, VanillaVAE
+from networks import VAE_net, VAE_net_64, VanillaVAE
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
