@@ -70,6 +70,9 @@ class Trackmania_env:
         return np.array(self.get_state_rep())
 
     # TODO: what to do when he finished a track
+    # TODO: maybe include speed in state?
+    # TODO: maybe do sequence of screenshots for state
+    # TODO: watch the vid and look what he did
     def step(self, action):
 
         done = False
