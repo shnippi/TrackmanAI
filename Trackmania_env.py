@@ -21,7 +21,7 @@ BACKSPACE = 0x0E
 ENTER = 0x1C
 
 img_dim = 64
-z_dim = 32
+z_dim = 33
 
 
 class Trackmania_env:
@@ -72,7 +72,6 @@ class Trackmania_env:
 
         return np.array(self.get_state_rep())
 
-    # TODO: what to do when he finished a track
     # TODO: maybe include speed in state?
     # TODO: maybe do sequence of screenshots for state
     # TODO: watch the vid and look what he did
@@ -99,12 +98,12 @@ class Trackmania_env:
             # PressKey(S)
             pass
 
-        z = np.array(self.get_state_rep())
-        # print(z)
-
         # TODO: maybe train the model with printed digits instead of handwritten
         speed = self.get_speed()
         cp, cp_reached = self.get_cp()
+
+        z = np.array(self.get_state_rep())
+        # print(z)
 
         reward = (speed / 150) ** 2 - 0.15
         if cp_reached:
@@ -129,10 +128,12 @@ class Trackmania_env:
             reward = 100
 
         # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
+        # print(1/(time.time()-self.update_time))
+        # self.update_time = time.time()
 
         return z, reward, done, None
 
-    def get_state_rep(self, monitor_nr=1):
+    def get_state_rep(self):
 
         mon = {'left': 0, 'top': 250, 'width': 790, 'height': 350}
 
@@ -170,6 +171,10 @@ class Trackmania_env:
         z = self.VAE_net.get_z(screen)
         z = torch.squeeze(z)
         z = z.detach().to("cpu")
+
+        # add normalized speed to state representation
+        z_speed = np.interp(self.speed, [0, 300], [-1, 1])
+        z = torch.cat((z, torch.tensor([z_speed])))
 
         return z
 
