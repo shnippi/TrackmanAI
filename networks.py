@@ -1,3 +1,5 @@
+# Most VAE implementations originally taken from https://github.com/AntixK/PyTorch-VAE
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
