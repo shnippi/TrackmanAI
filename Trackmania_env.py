@@ -72,7 +72,6 @@ class Trackmania_env:
 
         return np.array(self.get_state_rep())
 
-    # TODO: maybe include speed in state?
     # TODO: maybe do sequence of screenshots for state
     # TODO: watch the vid and look what he did
     def step(self, action):
@@ -98,6 +97,8 @@ class Trackmania_env:
             # PressKey(S)
             pass
 
+        # TODO: maybe break? and not turn?
+        # TODO: speed still gets read incorrectly
         # TODO: maybe train the model with printed digits instead of handwritten
         speed = self.get_speed()
         cp, cp_reached = self.get_cp()
@@ -111,7 +112,7 @@ class Trackmania_env:
 
         if speed < 5:
             self.stuck_counter += 1
-            if self.stuck_counter > 50:
+            if self.stuck_counter > 100:
                 self.stuck_counter = 0
                 done = True
                 reward = min(- 50 + time.time() - self.start_time, 0)
@@ -125,7 +126,7 @@ class Trackmania_env:
             time.sleep(0.1)
             ReleaseKey(ENTER)
             done = True
-            reward = 100
+            reward = 10000000/((time.time() - self.start_time)**2)
 
         # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
         # print(1/(time.time()-self.update_time))
