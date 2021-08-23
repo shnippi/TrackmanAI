@@ -2,6 +2,7 @@
 # source to this solution and code:
 # http://stackoverflow.com/questions/14489013/simulate-python-keypresses-for-controlling-a-game
 # http://www.gamespp.com/directx/directInputKeyboardScanCodes.html
+# LIST OF KEYS : http://www.flint.jp/misc/?q=dik&lang=en
 
 import ctypes
 import time

@@ -18,6 +18,7 @@ A = 0x1E
 S = 0x1F
 D = 0x20
 BACKSPACE = 0x0E
+ENTER = 0x1C
 
 img_dim = 64
 z_dim = 32
@@ -47,6 +48,7 @@ class Trackmania_env:
         self.speed = 0
         self.start_time = 0
         self.stuck_counter = 0
+        self.course_done_counter = 0
 
         self.cp1_numbers, self.cp2_numbers = self.load_cp_numbers()
 
@@ -62,6 +64,7 @@ class Trackmania_env:
         self.speed = 0
         self.start_time = time.time()
         self.stuck_counter = 0
+        self.course_done_counter = 0
 
         # print("RESETTING...")
         for i in list(range(2))[::-1]:
@@ -117,44 +120,37 @@ class Trackmania_env:
         else:
             self.stuck_counter = 0
 
+        if self.course_done_counter > 50:
+            print("COURSE COMPLETED! :D")
+            PressKey(ENTER)
+            time.sleep(0.1)
+            ReleaseKey(ENTER)
+            done = True
+            reward = 100
+
         # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
 
         return z, reward, done, None
 
     def get_state_rep(self, monitor_nr=1):
 
-        if monitor_nr == 1:
-            mon = {'left': 0, 'top': 250, 'width': 790, 'height': 350}
+        mon = {'left': 0, 'top': 250, 'width': 790, 'height': 350}
 
-            with mss() as sct:
-                img = np.array(sct.grab(mon))
-                img = cv2.resize(img, (img_dim, img_dim))
-                # cv2.imshow('window', cv2.resize(img, (500, 500)))
-                # key = cv2.waitKey(0)
-                screen = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
+        with mss() as sct:
+            img = np.array(sct.grab(mon))
+            img = cv2.resize(img, (img_dim, img_dim))
+            # cv2.imshow('window', cv2.resize(img, (500, 500)))
+            # key = cv2.waitKey(0)
+            screen = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
 
+        # check if course done (if done black bars appear on top and bottom)
+        bottom_bar = screen[60:, 10:40]
+        if np.amax(bottom_bar) == 0:
+            self.course_done_counter += 1
         else:
-            with mss() as sct:
-                # Get information of monitor 2
-                monitor_number = monitor_nr
-                mon = sct.monitors[monitor_number]
+            self.course_done_counter = 0
 
-                # The screen part to capture
-                monitor = {
-                    "top": mon["top"] + 300,  # 100px from the top
-                    "left": mon["left"] + 400,  # 100px from the left
-                    "width": 2200,
-                    "height": 1200,
-                    "mon": monitor_number,
-                }
-
-                # Grab the data_train_250_video
-                img = np.array(sct.grab(monitor))
-                img = cv2.resize(img, (img_dim, img_dim))
-                # cv2.imshow('window', cv2.resize(img, (500, 500)))
-                # key = cv2.waitKey(3000)
-                screen = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
-
+        # prepare the image for the VAE
         screen = screen / 256
         screen = torch.from_numpy(screen)
         screen = torch.unsqueeze(screen, 0)  # add color dim
@@ -169,11 +165,12 @@ class Trackmania_env:
         # plt.imshow(output[0][0].to("cpu"), "gray")
         # plt.show()
 
-        self.show_reconstruction(screen)
+        # self.show_reconstruction(screen)
 
         z = self.VAE_net.get_z(screen)
         z = torch.squeeze(z)
         z = z.detach().to("cpu")
+
         return z
 
     # TODO: train MNIST on own dataset
@@ -193,7 +190,6 @@ class Trackmania_env:
             img = np.array(sct.grab(mon))
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
             img = (img > 250) * img  # only take the pure white part of image (where the values are displayed)
-            np.set_printoptions(threshold=sys.maxsize)
 
             # cv2.imshow("result", img[:, 37:])
             # cv2.waitKey(0)
