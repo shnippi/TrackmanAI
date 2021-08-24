@@ -244,6 +244,7 @@ class Trackmania_env:
             # print(cp)
             # print(self.cp_predict_counter)
 
+            # TODO: 0 doesnt get updated here
             if cp[0] != "" and cp[0] != "0" and cp != self.cp:
                 self.cp_predict_counter += 1
                 if self.cp_predict_counter > 10:

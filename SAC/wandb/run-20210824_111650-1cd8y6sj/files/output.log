@@ -1,0 +1,8 @@
+Random start steps: -1
+3
+wandb: WARNING Calling wandb.login() after wandb.init() has no effect.
+2
+1
+Loading models from models/sac_actor_Trackmania_ and models/sac_critic_Trackmania_
+PAUSED
+UNPAUSED

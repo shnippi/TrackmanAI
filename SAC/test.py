@@ -16,13 +16,8 @@ frametime = 0
 
 env = Trackmania_env()
 while True:
-    # frametime = time.time()
-    # env.get_state_rep()
-    # # print(time.time() - frametime)
-
-    PressKey(ENTER)
-    time.sleep(0.1)
-    ReleaseKey(ENTER)
+    print(env.get_cp())
+    print(env.get_speed())
 
 
 

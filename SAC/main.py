@@ -18,6 +18,7 @@ import msvcrt as m
 
 load_dotenv()
 wandb.login()
+wandb.init(project="Trackmania")
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
 parser.add_argument('--env-name', default="Trackmania",
@@ -57,6 +58,26 @@ parser.add_argument('--cuda', action="store_true", default=True,
                     help='run on CUDA (default: False)')
 args = parser.parse_args()
 
+hyperparameters = dict(
+    gamma=args.gamma,
+    tau=args.tau,
+    lr=args.lr,
+    alpha=args.alpha,
+    batch_size=args.batch_size,
+    num_steps=args.num_steps,
+    hidden_size=args.hidden_size,
+    start_steps=args.start_steps,
+    policy=args.policy,
+    env_name=args.env_name,
+    eval=args.eval,
+    automatic_entropy_tuning=args.automatic_entropy_tuning,
+    seed=args.seed,
+    updates_per_step=args.updates_per_step,
+    target_update_interval=args.target_update_interval,
+    replay_size=args.replay_size,
+    cuda=args.cuda,
+)
+
 print("Random start steps: " + str(args.start_steps))
 for i in list(range(3))[::-1]:
     print(i + 1)
@@ -72,7 +93,7 @@ np.random.seed(args.seed)
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
 agent.load_model("models/sac_actor_Trackmania_", "models/sac_critic_Trackmania_")
 
-# Tesnorboard
+# tensorboard --logdir=SAC/runs --port=6006
 writer = SummaryWriter(
     'runs/{}_SAC_{}_{}_{}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), args.env_name,
                                   args.policy, "autotune" if args.automatic_entropy_tuning else ""))
@@ -117,6 +138,12 @@ for i_episode in itertools.count(1):
                 critic_1_loss, critic_2_loss, policy_loss, ent_loss, alpha = agent.update_parameters(memory,
                                                                                                      args.batch_size,
                                                                                                      updates)
+                wandb.log({"critic_1_loss": critic_1_loss})
+                wandb.log({"critic_2_loss": critic_2_loss})
+                wandb.log({"policy_loss": policy_loss})
+                wandb.log({"ent_loss": ent_loss})
+                wandb.log({"alpha": alpha})
+
                 writer.add_scalar('loss/critic_1', critic_1_loss, updates)
                 writer.add_scalar('loss/critic_2', critic_2_loss, updates)
                 writer.add_scalar('loss/policy', policy_loss, updates)

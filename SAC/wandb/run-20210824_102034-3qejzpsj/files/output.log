@@ -1,0 +1,20 @@
+
+Episode: 1, total numsteps: 408, episode steps: 408, reward: -23.5
+Episode: 2, total numsteps: 566, episode steps: 158, reward: -60.64
+Episode: 3, total numsteps: 2170, episode steps: 1604, reward: -27.98
+Episode: 4, total numsteps: 2319, episode steps: 149, reward: -58.38
+PAUSED
+UNPAUSED
+Episode: 5, total numsteps: 2566, episode steps: 247, reward: -32.98
+Episode: 6, total numsteps: 2691, episode steps: 125, reward: -57.28
+Episode: 7, total numsteps: 2833, episode steps: 142, reward: -57.92
+Episode: 8, total numsteps: 2982, episode steps: 149, reward: -59.62
+Episode: 9, total numsteps: 3542, episode steps: 560, reward: -64.25
+Episode: 10, total numsteps: 3683, episode steps: 141, reward: -58.1
+----------------------------------------
+Test Episodes: 3, Avg. Reward: -61.6
+----------------------------------------
+Saving models to models/sac_actor_Trackmania_ and models/sac_critic_Trackmania_
+Episode: 11, total numsteps: 3810, episode steps: 127, reward: -57.34
+Episode: 12, total numsteps: 3937, episode steps: 127, reward: -57.32
+Episode: 13, total numsteps: 4080, episode steps: 143, reward: -56.67

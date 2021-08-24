@@ -1,0 +1,10 @@
+Random start steps: -1
+3
+2
+1
+Loading models from models/sac_actor_Trackmania_ and models/sac_critic_Trackmania_
+Episode: 1, total numsteps: 174, episode steps: 174, reward: -63.44
+Episode: 2, total numsteps: 313, episode steps: 139, reward: -59.37
+Episode: 3, total numsteps: 447, episode steps: 134, reward: -58.45
+PAUSED
+UNPAUSED

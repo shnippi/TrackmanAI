@@ -1,0 +1,152 @@
+2021-08-24 11:03:41,946 INFO    MainThread:10272 [internal.py:wandb_internal():86] W&B internal server running at pid: 10272, started at: 2021-08-24 11:03:41.937107
+2021-08-24 11:03:41,947 INFO    WriterThread:10272 [datastore.py:open_for_write():77] open: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\run-c6vi6905.wandb
+2021-08-24 11:03:41,948 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: check_version
+2021-08-24 11:03:41,951 DEBUG   SenderThread:10272 [sender.py:send():182] send: header
+2021-08-24 11:03:41,951 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: check_version
+2021-08-24 11:03:42,135 DEBUG   SenderThread:10272 [sender.py:send():182] send: run
+2021-08-24 11:03:42,513 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: run_start
+2021-08-24 11:03:42,513 INFO    SenderThread:10272 [dir_watcher.py:__init__():168] watching files in: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files
+2021-08-24 11:03:42,513 INFO    SenderThread:10272 [sender.py:_start_run_threads():740] run started: c6vi6905 with start time 1629795821
+2021-08-24 11:03:42,513 DEBUG   SenderThread:10272 [sender.py:send():182] send: summary
+2021-08-24 11:03:42,514 INFO    SenderThread:10272 [sender.py:_save_file():873] saving file wandb-summary.json with policy end
+2021-08-24 11:03:42,528 DEBUG   HandlerThread:10272 [meta.py:__init__():39] meta init
+2021-08-24 11:03:42,528 DEBUG   HandlerThread:10272 [meta.py:__init__():53] meta init done
+2021-08-24 11:03:42,528 DEBUG   HandlerThread:10272 [meta.py:probe():210] probe
+2021-08-24 11:03:42,537 DEBUG   HandlerThread:10272 [meta.py:_setup_git():200] setup git
+2021-08-24 11:03:42,658 DEBUG   HandlerThread:10272 [meta.py:_setup_git():207] setup git done
+2021-08-24 11:03:42,658 DEBUG   HandlerThread:10272 [meta.py:_save_pip():57] save pip
+2021-08-24 11:03:42,659 DEBUG   HandlerThread:10272 [meta.py:_save_pip():71] save pip done
+2021-08-24 11:03:42,659 DEBUG   HandlerThread:10272 [meta.py:_save_conda():78] save conda
+2021-08-24 11:03:42,667 ERROR   HandlerThread:10272 [meta.py:_save_conda():85] Error saving conda packages
+Traceback (most recent call last):
+  File "C:\Users\shnippi\anaconda3\envs\reinforcement\lib\site-packages\wandb\sdk\internal\meta.py", line 83, in _save_conda
+    subprocess.call(["conda", "env", "export"], stdout=f)
+  File "C:\Users\shnippi\anaconda3\envs\reinforcement\lib\subprocess.py", line 340, in call
+    with Popen(*popenargs, **kwargs) as p:
+  File "C:\Users\shnippi\anaconda3\envs\reinforcement\lib\subprocess.py", line 858, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+  File "C:\Users\shnippi\anaconda3\envs\reinforcement\lib\subprocess.py", line 1311, in _execute_child
+    hp, ht, pid, tid = _winapi.CreateProcess(executable, args,
+FileNotFoundError: [WinError 2] The system cannot find the file specified
+2021-08-24 11:03:42,669 DEBUG   HandlerThread:10272 [meta.py:_save_conda():86] save conda done
+2021-08-24 11:03:42,669 DEBUG   HandlerThread:10272 [meta.py:probe():252] probe done
+2021-08-24 11:03:42,749 DEBUG   SenderThread:10272 [sender.py:send():182] send: files
+2021-08-24 11:03:42,749 INFO    SenderThread:10272 [sender.py:_save_file():873] saving file wandb-metadata.json with policy now
+2021-08-24 11:03:42,753 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: stop_status
+2021-08-24 11:03:42,754 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: stop_status
+2021-08-24 11:03:43,339 INFO    Thread-17 :10272 [upload_job.py:push():137] Uploaded file C:\Users\shnippi\AppData\Local\Temp\tmph85ozpcswandb\2wamh0kx-wandb-metadata.json
+2021-08-24 11:03:43,514 INFO    Thread-12 :10272 [dir_watcher.py:_on_file_created():216] file/dir created: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\wandb-summary.json
+2021-08-24 11:03:43,514 INFO    Thread-12 :10272 [dir_watcher.py:_on_file_created():216] file/dir created: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\conda-environment.yaml
+2021-08-24 11:03:43,514 INFO    Thread-12 :10272 [dir_watcher.py:_on_file_created():216] file/dir created: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\output.log
+2021-08-24 11:03:43,515 INFO    Thread-12 :10272 [dir_watcher.py:_on_file_created():216] file/dir created: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\requirements.txt
+2021-08-24 11:03:43,515 INFO    Thread-12 :10272 [dir_watcher.py:_on_file_created():216] file/dir created: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\wandb-metadata.json
+2021-08-24 11:03:45,263 DEBUG   SenderThread:10272 [sender.py:send():182] send: telemetry
+2021-08-24 11:03:45,263 DEBUG   SenderThread:10272 [sender.py:send():182] send: exit
+2021-08-24 11:03:45,263 INFO    SenderThread:10272 [sender.py:send_exit():291] handling exit code: 0
+2021-08-24 11:03:45,264 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: poll_exit
+2021-08-24 11:03:45,264 INFO    SenderThread:10272 [sender.py:send_exit():293] handling runtime: 2
+2021-08-24 11:03:45,265 INFO    SenderThread:10272 [sender.py:_save_file():873] saving file wandb-summary.json with policy end
+2021-08-24 11:03:45,266 INFO    SenderThread:10272 [sender.py:send_exit():303] send defer
+2021-08-24 11:03:45,266 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: poll_exit
+2021-08-24 11:03:45,267 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: defer
+2021-08-24 11:03:45,267 INFO    HandlerThread:10272 [handler.py:handle_request_defer():145] handle defer: 0
+2021-08-24 11:03:45,268 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: defer
+2021-08-24 11:03:45,268 INFO    SenderThread:10272 [sender.py:send_request_defer():312] handle sender defer: 0
+2021-08-24 11:03:45,268 INFO    SenderThread:10272 [sender.py:transition_state():316] send defer: 1
+2021-08-24 11:03:45,268 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: defer
+2021-08-24 11:03:45,268 INFO    HandlerThread:10272 [handler.py:handle_request_defer():145] handle defer: 1
+2021-08-24 11:03:45,400 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: defer
+2021-08-24 11:03:45,400 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: poll_exit
+2021-08-24 11:03:45,400 INFO    SenderThread:10272 [sender.py:send_request_defer():312] handle sender defer: 1
+2021-08-24 11:03:45,400 INFO    SenderThread:10272 [sender.py:transition_state():316] send defer: 2
+2021-08-24 11:03:45,400 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: poll_exit
+2021-08-24 11:03:45,400 DEBUG   SenderThread:10272 [sender.py:send():182] send: stats
+2021-08-24 11:03:45,401 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: defer
+2021-08-24 11:03:45,401 INFO    HandlerThread:10272 [handler.py:handle_request_defer():145] handle defer: 2
+2021-08-24 11:03:45,401 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: defer
+2021-08-24 11:03:45,401 INFO    SenderThread:10272 [sender.py:send_request_defer():312] handle sender defer: 2
+2021-08-24 11:03:45,401 INFO    SenderThread:10272 [sender.py:transition_state():316] send defer: 3
+2021-08-24 11:03:45,401 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: defer
+2021-08-24 11:03:45,401 INFO    HandlerThread:10272 [handler.py:handle_request_defer():145] handle defer: 3
+2021-08-24 11:03:45,401 DEBUG   SenderThread:10272 [sender.py:send():182] send: summary
+2021-08-24 11:03:45,402 INFO    SenderThread:10272 [sender.py:_save_file():873] saving file wandb-summary.json with policy end
+2021-08-24 11:03:45,402 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: defer
+2021-08-24 11:03:45,402 INFO    SenderThread:10272 [sender.py:send_request_defer():312] handle sender defer: 3
+2021-08-24 11:03:45,402 INFO    SenderThread:10272 [sender.py:transition_state():316] send defer: 4
+2021-08-24 11:03:45,403 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: defer
+2021-08-24 11:03:45,403 INFO    HandlerThread:10272 [handler.py:handle_request_defer():145] handle defer: 4
+2021-08-24 11:03:45,403 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: defer
+2021-08-24 11:03:45,403 INFO    SenderThread:10272 [sender.py:send_request_defer():312] handle sender defer: 4
+2021-08-24 11:03:45,502 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: poll_exit
+2021-08-24 11:03:45,513 INFO    Thread-12 :10272 [dir_watcher.py:_on_file_modified():229] file/dir modified: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\wandb-summary.json
+2021-08-24 11:03:45,590 INFO    SenderThread:10272 [sender.py:transition_state():316] send defer: 5
+2021-08-24 11:03:45,590 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: poll_exit
+2021-08-24 11:03:45,590 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: defer
+2021-08-24 11:03:45,590 INFO    HandlerThread:10272 [handler.py:handle_request_defer():145] handle defer: 5
+2021-08-24 11:03:45,591 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: defer
+2021-08-24 11:03:45,591 INFO    SenderThread:10272 [sender.py:send_request_defer():312] handle sender defer: 5
+2021-08-24 11:03:45,591 INFO    SenderThread:10272 [dir_watcher.py:finish():282] shutting down directory watcher
+2021-08-24 11:03:45,691 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: poll_exit
+2021-08-24 11:03:46,513 INFO    SenderThread:10272 [dir_watcher.py:_on_file_modified():229] file/dir modified: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\config.yaml
+2021-08-24 11:03:46,514 INFO    SenderThread:10272 [dir_watcher.py:finish():312] scan: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files
+2021-08-24 11:03:46,514 INFO    SenderThread:10272 [dir_watcher.py:finish():318] scan save: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\conda-environment.yaml conda-environment.yaml
+2021-08-24 11:03:46,514 INFO    SenderThread:10272 [dir_watcher.py:finish():318] scan save: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\config.yaml config.yaml
+2021-08-24 11:03:46,515 INFO    SenderThread:10272 [dir_watcher.py:finish():318] scan save: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\output.log output.log
+2021-08-24 11:03:46,515 INFO    SenderThread:10272 [dir_watcher.py:finish():318] scan save: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\requirements.txt requirements.txt
+2021-08-24 11:03:46,518 INFO    SenderThread:10272 [dir_watcher.py:finish():318] scan save: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\wandb-metadata.json wandb-metadata.json
+2021-08-24 11:03:46,519 INFO    SenderThread:10272 [dir_watcher.py:finish():318] scan save: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\wandb-summary.json wandb-summary.json
+2021-08-24 11:03:46,519 INFO    SenderThread:10272 [sender.py:transition_state():316] send defer: 6
+2021-08-24 11:03:46,520 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: poll_exit
+2021-08-24 11:03:46,523 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: defer
+2021-08-24 11:03:46,526 INFO    HandlerThread:10272 [handler.py:handle_request_defer():145] handle defer: 6
+2021-08-24 11:03:46,526 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: defer
+2021-08-24 11:03:46,526 INFO    SenderThread:10272 [sender.py:send_request_defer():312] handle sender defer: 6
+2021-08-24 11:03:46,527 INFO    SenderThread:10272 [file_pusher.py:finish():177] shutting down file pusher
+2021-08-24 11:03:46,623 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: poll_exit
+2021-08-24 11:03:46,623 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: poll_exit
+2021-08-24 11:03:46,725 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: poll_exit
+2021-08-24 11:03:46,725 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: poll_exit
+2021-08-24 11:03:46,826 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: poll_exit
+2021-08-24 11:03:46,826 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: poll_exit
+2021-08-24 11:03:46,928 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: poll_exit
+2021-08-24 11:03:46,928 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: poll_exit
+2021-08-24 11:03:47,029 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: poll_exit
+2021-08-24 11:03:47,029 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: poll_exit
+2021-08-24 11:03:47,039 INFO    Thread-20 :10272 [upload_job.py:push():137] Uploaded file E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\wandb-summary.json
+2021-08-24 11:03:47,071 INFO    Thread-18 :10272 [upload_job.py:push():137] Uploaded file E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\config.yaml
+2021-08-24 11:03:47,071 INFO    Thread-19 :10272 [upload_job.py:push():137] Uploaded file E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\files\requirements.txt
+2021-08-24 11:03:47,130 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: poll_exit
+2021-08-24 11:03:47,130 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: poll_exit
+2021-08-24 11:03:47,231 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: poll_exit
+2021-08-24 11:03:47,231 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: poll_exit
+2021-08-24 11:03:47,272 INFO    Thread-11 :10272 [sender.py:transition_state():316] send defer: 7
+2021-08-24 11:03:47,272 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: defer
+2021-08-24 11:03:47,272 INFO    HandlerThread:10272 [handler.py:handle_request_defer():145] handle defer: 7
+2021-08-24 11:03:47,272 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: defer
+2021-08-24 11:03:47,272 INFO    SenderThread:10272 [sender.py:send_request_defer():312] handle sender defer: 7
+2021-08-24 11:03:47,332 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: poll_exit
+2021-08-24 11:03:47,572 INFO    SenderThread:10272 [sender.py:transition_state():316] send defer: 8
+2021-08-24 11:03:47,572 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: poll_exit
+2021-08-24 11:03:47,573 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: defer
+2021-08-24 11:03:47,573 INFO    HandlerThread:10272 [handler.py:handle_request_defer():145] handle defer: 8
+2021-08-24 11:03:47,573 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: defer
+2021-08-24 11:03:47,573 INFO    SenderThread:10272 [sender.py:send_request_defer():312] handle sender defer: 8
+2021-08-24 11:03:47,573 INFO    SenderThread:10272 [sender.py:transition_state():316] send defer: 9
+2021-08-24 11:03:47,573 DEBUG   SenderThread:10272 [sender.py:send():182] send: final
+2021-08-24 11:03:47,573 DEBUG   SenderThread:10272 [sender.py:send():182] send: footer
+2021-08-24 11:03:47,573 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: defer
+2021-08-24 11:03:47,573 INFO    HandlerThread:10272 [handler.py:handle_request_defer():145] handle defer: 9
+2021-08-24 11:03:47,574 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: defer
+2021-08-24 11:03:47,574 INFO    SenderThread:10272 [sender.py:send_request_defer():312] handle sender defer: 9
+2021-08-24 11:03:47,673 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: poll_exit
+2021-08-24 11:03:47,673 DEBUG   SenderThread:10272 [sender.py:send_request():196] send_request: poll_exit
+2021-08-24 11:03:47,673 INFO    SenderThread:10272 [file_pusher.py:join():182] waiting for file pusher
+2021-08-24 11:03:47,674 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: get_summary
+2021-08-24 11:03:47,674 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: sampled_history
+2021-08-24 11:03:47,675 DEBUG   HandlerThread:10272 [handler.py:handle_request():128] handle_request: shutdown
+2021-08-24 11:03:47,675 INFO    HandlerThread:10272 [handler.py:finish():677] shutting down handler
+2021-08-24 11:03:48,573 INFO    WriterThread:10272 [datastore.py:close():281] close: E:\code\Python\Trackmania-RL\SAC\wandb\run-20210824_110340-c6vi6905\run-c6vi6905.wandb
+2021-08-24 11:03:48,673 INFO    SenderThread:10272 [sender.py:finish():979] shutting down sender
+2021-08-24 11:03:48,673 INFO    SenderThread:10272 [file_pusher.py:finish():177] shutting down file pusher
+2021-08-24 11:03:48,673 INFO    SenderThread:10272 [file_pusher.py:join():182] waiting for file pusher
+2021-08-24 11:03:48,675 INFO    MainThread:10272 [internal.py:handle_exit():76] Internal process exited
