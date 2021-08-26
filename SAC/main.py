@@ -48,7 +48,7 @@ parser.add_argument('--hidden_size', type=int, default=256, metavar='N',
                     help='hidden size (default: 256)')
 parser.add_argument('--updates_per_step', type=int, default=1, metavar='N',
                     help='model updates per simulator step (default: 1)')
-parser.add_argument('--start_steps', type=int, default=-1, metavar='N',
+parser.add_argument('--start_steps', type=int, default=10000, metavar='N',
                     help='Steps sampling random actions (default: 10000)')
 parser.add_argument('--target_update_interval', type=int, default=1, metavar='N',
                     help='Value target update per no. of updates per step (default: 1)')
@@ -91,7 +91,7 @@ np.random.seed(args.seed)
 
 # Agent
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
-agent.load_model("models/sac_actor_Trackmania_", "models/sac_critic_Trackmania_")
+# agent.load_model("models/sac_actor_Trackmania_", "models/sac_critic_Trackmania_")
 
 # tensorboard --logdir=SAC/runs --port=6006
 writer = SummaryWriter(
@@ -104,6 +104,7 @@ memory = ReplayMemory(args.replay_size, args.seed)
 # Training Loop
 total_numsteps = 0
 updates = 0
+best_reward = 0
 
 for i_episode in itertools.count(1):
     episode_reward = 0
@@ -193,10 +194,15 @@ for i_episode in itertools.count(1):
             avg_reward += episode_reward
         avg_reward /= episodes
 
+        wandb.log({"avg_reward": avg_reward})
         writer.add_scalar('avg_reward/test', avg_reward, i_episode)
 
         print("----------------------------------------")
         print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
         print("----------------------------------------")
+
+        if avg_reward > best_reward:
+            agent.save_model("Trackmania", suffix="best")
+            best_reward = avg_reward
 
         agent.save_model("Trackmania")
