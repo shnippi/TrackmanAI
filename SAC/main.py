@@ -105,6 +105,7 @@ memory = ReplayMemory(args.replay_size, args.seed)
 total_numsteps = 0
 updates = 0
 best_reward = 0
+load_from_best_cntr = 0
 
 for i_episode in itertools.count(1):
     episode_reward = 0
@@ -204,5 +205,12 @@ for i_episode in itertools.count(1):
         if avg_reward > best_reward:
             agent.save_model("Trackmania", suffix="best")
             best_reward = avg_reward
+            load_from_best_cntr = 0
+        else:
+            load_from_best_cntr += 1
+
+        # reset after an amount of episodes that it didnt reach a new highscore anymore
+        if load_from_best_cntr > 100:
+            agent.load_model("models/sac_actor_Trackmania_best", "models/sac_critic_Trackmania_best")
 
         agent.save_model("Trackmania")
