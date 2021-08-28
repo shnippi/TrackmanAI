@@ -122,6 +122,7 @@ class Trackmania_env:
 
         if self.course_done_counter > 50:
             print("COURSE COMPLETED! :D")
+            self.course_done_counter = 0
             PressKey(ENTER)
             time.sleep(0.1)
             ReleaseKey(ENTER)
