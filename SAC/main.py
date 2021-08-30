@@ -90,18 +90,21 @@ torch.manual_seed(args.seed)
 np.random.seed(args.seed)
 
 # TODO: SAVE THE REPLAYBUFFER
+# Memory
+memory = ReplayMemory(args.replay_size, args.seed)
 
 # Agent
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
+
 agent.load_model("models/sac_actor_Trackmania_", "models/sac_critic_Trackmania_")
+memory.load_buffer("models/sac_buffer_Trackmania_")
+
+print(len(memory.buffer))
 
 # tensorboard --logdir=SAC/runs --port=6006
 writer = SummaryWriter(
     'runs/{}_SAC_{}_{}_{}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), args.env_name,
                                   args.policy, "autotune" if args.automatic_entropy_tuning else ""))
-
-# Memory
-memory = ReplayMemory(args.replay_size, args.seed)
 
 # Training Loop
 total_numsteps = 0
@@ -216,3 +219,4 @@ for i_episode in itertools.count(1):
             agent.load_model("models/sac_actor_Trackmania_best", "models/sac_critic_Trackmania_best")
 
         agent.save_model("Trackmania")
+        memory.save_buffer("Trackmania")
