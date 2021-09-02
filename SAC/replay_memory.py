@@ -26,11 +26,11 @@ class ReplayMemory:
         return len(self.buffer)
 
     def save_buffer(self, env_name, suffix="", save_path=None):
-        if not os.path.exists('models/'):
-            os.makedirs('models/')
+        if not os.path.exists('checkpoints/'):
+            os.makedirs('checkpoints/')
 
         if save_path is None:
-            save_path = "models/sac_buffer_{}_{}".format(env_name, suffix)
+            save_path = "checkpoints/sac_buffer_{}_{}".format(env_name, suffix)
         print('Saving buffer to {}'.format(save_path))
 
         with open(save_path, 'wb') as f:

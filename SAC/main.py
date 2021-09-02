@@ -48,7 +48,7 @@ parser.add_argument('--hidden_size', type=int, default=256, metavar='N',
                     help='hidden size (default: 256)')
 parser.add_argument('--updates_per_step', type=int, default=1, metavar='N',
                     help='model updates per simulator step (default: 1)')
-parser.add_argument('--start_steps', type=int, default=100000, metavar='N',
+parser.add_argument('--start_steps', type=int, default=-1, metavar='N',
                     help='Steps sampling random actions (default: 10000)')
 parser.add_argument('--target_update_interval', type=int, default=1, metavar='N',
                     help='Value target update per no. of updates per step (default: 1)')
@@ -89,15 +89,14 @@ env = Trackmania_env()
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
 
-# TODO: SAVE THE REPLAYBUFFER
 # Memory
 memory = ReplayMemory(args.replay_size, args.seed)
 
 # Agent
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
 
-agent.load_model("models/sac_actor_Trackmania_", "models/sac_critic_Trackmania_")
-memory.load_buffer("models/sac_buffer_Trackmania_")
+agent.load_checkpoint("checkpoints/sac_checkpoint_Trackmania_")
+memory.load_buffer("checkpoints/sac_buffer_Trackmania_")
 
 print(len(memory.buffer))
 
@@ -208,15 +207,16 @@ for i_episode in itertools.count(1):
         print("----------------------------------------")
 
         if avg_reward > best_reward:
-            agent.save_model("Trackmania", suffix="best")
+            agent.save_checkpoint("Trackmania", suffix="best")
             best_reward = avg_reward
             load_from_best_cntr = 0
         else:
             load_from_best_cntr += 1
 
         # reset after an amount of episodes that it didnt reach a new highscore anymore
-        if load_from_best_cntr > 100:
-            agent.load_model("models/sac_actor_Trackmania_best", "models/sac_critic_Trackmania_best")
+        if load_from_best_cntr > 15:
+            agent.load_checkpoint("models/sac_checkpoint_Trackmania_best")
 
-        agent.save_model("Trackmania")
+        agent.save_checkpoint("Trackmania")
         memory.save_buffer("Trackmania")
+ 

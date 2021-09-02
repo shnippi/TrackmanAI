@@ -93,8 +93,10 @@ class Trackmania_env:
         if action[1] >= 0:
             PressKey(W)
 
+        # elif action[1] <= -0.5:
+        #     PressKey(S)
+
         else:
-            # PressKey(S)
             pass
 
         # TODO: maybe break? and not turn?
@@ -109,6 +111,7 @@ class Trackmania_env:
         reward = (speed / 150) ** 2 - 0.15
         if cp_reached:
             reward += 20
+            # print("Checkpoint! :D")
 
         if speed < 5:
             self.stuck_counter += 1

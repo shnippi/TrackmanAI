@@ -5,3 +5,7 @@ __pycache__/
 .env
 /wandb
 /SAC/wandb
+/SAC/models
+/SAC/checkpoints
+/models
+
