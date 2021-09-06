@@ -16,6 +16,10 @@ import wandb
 from dotenv import load_dotenv
 import msvcrt as m
 
+# TODO: implement that i can go straight
+# TODO: implement if <-0.5 if presses w and s together to break
+
+
 load_dotenv()
 wandb.login()
 wandb.init(project="Trackmania")
@@ -215,7 +219,7 @@ for i_episode in itertools.count(1):
 
         # reset after an amount of episodes that it didnt reach a new highscore anymore
         if load_from_best_cntr > 15:
-            agent.load_checkpoint("models/sac_checkpoint_Trackmania_best")
+            agent.load_checkpoint("checkpoints/sac_checkpoint_Trackmania_best")
 
         agent.save_checkpoint("Trackmania")
         memory.save_buffer("Trackmania")

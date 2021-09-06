@@ -41,4 +41,4 @@ class ReplayMemory:
 
         with open(save_path, "rb") as f:
             self.buffer = pickle.load(f)
-            self.position = len(self.buffer)
+            self.position = len(self.buffer) % self.capacity
