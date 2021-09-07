@@ -121,7 +121,7 @@ class SAC(object):
                     'policy_optimizer_state_dict': self.policy_optim.state_dict()}, ckpt_path)
 
     # Load model parameters
-    def load_checkpoint(self, ckpt_path):
+    def load_checkpoint(self, ckpt_path, evaluate=False):
         print('Loading models from {}'.format(ckpt_path))
         if ckpt_path is not None:
             checkpoint = torch.load(ckpt_path)
@@ -131,6 +131,12 @@ class SAC(object):
             self.critic_optim.load_state_dict(checkpoint['critic_optimizer_state_dict'])
             self.policy_optim.load_state_dict(checkpoint['policy_optimizer_state_dict'])
 
-            self.policy.train()
-            self.critic.train()
+            if evaluate:
+                self.policy.eval()
+                self.critic.eval()
+                self.critic_target.eval()
+            else:
+                self.policy.train()
+                self.critic.train()
+                self.critic_target.train()
 
