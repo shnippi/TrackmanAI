@@ -18,6 +18,10 @@ import msvcrt as m
 
 # TODO: implement that i can go straight
 # TODO: implement if <-0.5 if presses w and s together to break
+# TODO: PULL REQUEST
+# TODO: YOUTUBE VIDEO?
+# TODO: OCR THE MINUS SIGN BEFORE SPEED, THEN USE THIS AS RESET CONDITION
+# TODO: speed still gets read incorrectly
 
 
 load_dotenv()
@@ -99,8 +103,8 @@ memory = ReplayMemory(args.replay_size, args.seed)
 # Agent
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
 
-agent.load_checkpoint("checkpoints/sac_checkpoint_Trackmania_")
-memory.load_buffer("checkpoints/sac_buffer_Trackmania_")
+agent.load_checkpoint("checkpoints/sac_checkpoint_Trackmania_stable")
+memory.load_buffer("checkpoints/sac_buffer_Trackmania_stable")
 
 print(len(memory.buffer))
 
@@ -219,7 +223,7 @@ for i_episode in itertools.count(1):
 
         # reset after an amount of episodes that it didnt reach a new highscore anymore
         if load_from_best_cntr > 15:
-            agent.load_checkpoint("checkpoints/sac_checkpoint_Trackmania_best")
+            agent.load_checkpoint("checkpoints/sac_checkpoint_Trackmania_best_stable")
 
         agent.save_checkpoint("Trackmania")
         memory.save_buffer("Trackmania")

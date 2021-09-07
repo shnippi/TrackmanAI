@@ -16,7 +16,7 @@ frametime = 0
 
 env = Trackmania_env()
 while True:
-    print(env.get_cp())
+    # print(env.get_cp())
     print(env.get_speed())
 
 

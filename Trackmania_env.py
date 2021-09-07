@@ -51,6 +51,7 @@ class Trackmania_env:
         self.course_done_counter = 0
 
         self.cp1_numbers, self.cp2_numbers = self.load_cp_numbers()
+        self.minus = np.load('E:/code/Python/Trackmania-RL/data/checkpoint_digits/minus.npy')
 
         self.update_time = 0
 
@@ -83,24 +84,21 @@ class Trackmania_env:
         ReleaseKey(W)
         ReleaseKey(S)
 
-        # performs action and gets new gamestate
-        if action[0] >= 0:
+        # LEFT / STRAIGHT / RIGHT
+        if action[0] >= 0.5:
             PressKey(D)
-        else:
+        elif action[0] <= -0.5:
             PressKey(A)
 
-        # currently only going forward
+        # ACCELERATE / IDLE / BREAK
         if action[1] >= 0:
             PressKey(W)
-
         # elif action[1] <= -0.5:
         #     PressKey(S)
 
         else:
             pass
 
-        # TODO: maybe break? and not turn?
-        # TODO: speed still gets read incorrectly
         # TODO: maybe train the model with printed digits instead of handwritten
         speed = self.get_speed()
         cp, cp_reached = self.get_cp()
@@ -130,7 +128,7 @@ class Trackmania_env:
             time.sleep(0.1)
             ReleaseKey(ENTER)
             done = True
-            reward = 10000000/((time.time() - self.start_time)**2)
+            reward = 10000000 / ((time.time() - self.start_time) ** 2)
 
         # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
         # print(1/(time.time()-self.update_time))
@@ -273,6 +271,11 @@ class Trackmania_env:
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
             img = (img > 150) * img  # only take the pure white part of image (where the values are displayed)
 
+            diff = np.sum(np.absolute(img[:, :10] - self.minus))
+            if diff < 3000:
+                self.speed = 0
+                return self.speed
+
             # pad the images to 28x28
             digit1[:, 5:22] = img[:, :17]
             digits.append(digit1)
@@ -295,27 +298,8 @@ class Trackmania_env:
                     # TODO: this is yikes
                     if pred == 7:
                         pred = 1
-                    # print(pred.argmax(1))dw
+                    # print(pred.argmax(1))
                     speed += str(pred)
-
-            # img = cv2.resize(img, (240, 120))
-            # cv2.imshow("result", img)
-            # cv2.waitKey(0)
-            #
-            # string = pytesseract.image_to_string(img)
-            # for i in string:
-            #     if i.isdigit():
-            #         speed += i
-            # print(speed)
-            # print(self.speed)
-
-            # check if OCR worked, else take old value
-            # if speed:
-            #     self.speed = int(speed)
-            #     return self.speed
-            # else:
-            #     self.speed = max(self.speed - 5, 0)
-            #     return self.speed
 
             if speed:
                 self.speed = int(speed)

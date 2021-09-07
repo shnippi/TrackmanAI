@@ -75,8 +75,8 @@ memory = ReplayMemory(args.replay_size, args.seed)
 # Agent
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
 
-agent.load_checkpoint("checkpoints/sac_checkpoint_Trackmania_best", evaluate=True)
-# memory.load_buffer("checkpoints/sac_buffer_Trackmania_")
+agent.load_checkpoint("checkpoints/sac_checkpoint_Trackmania_best_stable", evaluate=True)
+# memory.load_buffer("checkpoints/sac_buffer_Trackmania_stable")
 
 print(len(memory.buffer))
 
