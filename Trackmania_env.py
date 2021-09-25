@@ -80,7 +80,7 @@ class Trackmania_env:
         done = False
 
         ReleaseKey(D)
-        PressKey(A)
+        ReleaseKey(A)
         ReleaseKey(W)
         ReleaseKey(S)
 
@@ -93,8 +93,9 @@ class Trackmania_env:
         # ACCELERATE / IDLE / BREAK
         if action[1] >= 0:
             PressKey(W)
-        # elif action[1] <= -0.5:
-        #     PressKey(S)
+        elif action[1] <= -0.5:
+            PressKey(S)
+            PressKey(W)
 
         else:
             pass
@@ -113,16 +114,16 @@ class Trackmania_env:
 
         if speed < 5:
             self.stuck_counter += 1
-            if self.stuck_counter > 100:
+            if self.stuck_counter > 300:  # ATTENTION: this needs to be longer than the end screen after completion
                 self.stuck_counter = 0
                 done = True
                 reward = min(- 50 + time.time() - self.start_time, 0)
-                # print("oooopsie woopsie stuckie wuckie")
+                print("oooopsie woopsie stuckie wuckie")
         else:
             self.stuck_counter = 0
 
         if self.course_done_counter > 50:
-            print("COURSE COMPLETED! :D")
+            print("COURSE COMPLETED! :D -- Time : " + str(time.time() - self.start_time))
             self.course_done_counter = 0
             PressKey(ENTER)
             time.sleep(0.1)
@@ -148,7 +149,7 @@ class Trackmania_env:
             screen = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
 
         # check if course done (if done black bars appear on top and bottom)
-        bottom_bar = screen[60:, 10:40]
+        bottom_bar = screen[60:, 5:40]
         if np.amax(bottom_bar) == 0:
             self.course_done_counter += 1
         else:

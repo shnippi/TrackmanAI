@@ -16,12 +16,12 @@ import wandb
 from dotenv import load_dotenv
 import msvcrt as m
 
-# TODO: implement that i can go straight
-# TODO: implement if <-0.5 if presses w and s together to break
+# TODO: implement if <-0.5 if presses w and s together to break and compare this with only break
 # TODO: PULL REQUEST
 # TODO: YOUTUBE VIDEO?
 # TODO: OCR THE MINUS SIGN BEFORE SPEED, THEN USE THIS AS RESET CONDITION
 # TODO: speed still gets read incorrectly
+# TODO: sometimes reward is in the millions????
 
 
 load_dotenv()
@@ -204,6 +204,18 @@ for i_episode in itertools.count(1):
                 next_state, reward, done, _ = env.step(action)
                 episode_reward += reward
                 state = next_state
+
+                keys = key_check()
+                if 'P' in keys:
+                    print("PAUSED")
+                    while True:
+                        time.sleep(1)
+                        keys = key_check()
+
+                        if 'P' in keys:
+                            print("UNPAUSED")
+                            break
+
             avg_reward += episode_reward
         avg_reward /= episodes
 
@@ -224,6 +236,7 @@ for i_episode in itertools.count(1):
         # reset after an amount of episodes that it didnt reach a new highscore anymore
         if load_from_best_cntr > 15:
             agent.load_checkpoint("checkpoints/sac_checkpoint_Trackmania_best")
+            load_from_best_cntr = 0
 
         agent.save_checkpoint("Trackmania")
         memory.save_buffer("Trackmania")
