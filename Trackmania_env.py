@@ -50,7 +50,7 @@ class Trackmania_env:
         self.stuck_counter = 0
         self.course_done_counter = 0
 
-        self.cp1_numbers, self.cp2_numbers = self.load_cp_numbers()
+        self.cp1_numbers, self.cp2_numbers, self.speed_numbers = self.load_numbers()
         self.minus = np.load('E:/code/Python/Trackmania-RL/data/checkpoint_digits/minus.npy')
 
         self.update_time = 0
@@ -84,17 +84,30 @@ class Trackmania_env:
         ReleaseKey(W)
         ReleaseKey(S)
 
+        # # LEFT / STRAIGHT / RIGHT
+        # if action[0] >= 0.5:
+        #     PressKey(D)
+        # elif action[0] <= -0.5:
+        #     PressKey(A)
+        #
+        # # ACCELERATE / IDLE / BREAK
+        # if action[1] >= 0:
+        #     PressKey(W)
+        # elif action[1] <= -0.5:
+        #     PressKey(S)
+        #     PressKey(W)
+        #
+        # else:
+        #     pass
+
         # LEFT / STRAIGHT / RIGHT
         if action[0] >= 0.5:
             PressKey(D)
         elif action[0] <= -0.5:
             PressKey(A)
 
-        # ACCELERATE / IDLE / BREAK
+        # ACCELERATE / IDLE
         if action[1] >= 0:
-            PressKey(W)
-        elif action[1] <= -0.5:
-            PressKey(S)
             PressKey(W)
 
         else:
@@ -272,14 +285,32 @@ class Trackmania_env:
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
             img = (img > 150) * img  # only take the pure white part of image (where the values are displayed)
 
+            # save hardcoded digits
+
+            # file_name = 'E:/code/Python/Trackmania-RL/data/speed_digit/nine.npy'
+            # np.save(file_name, img[:, :15])
+            # cv2.imshow("result", img[:, :15])
+            # cv2.waitKey(0)
+
+            # check if minus
             diff = np.sum(np.absolute(img[:, :10] - self.minus))
             if diff < 3000:
                 self.speed = 0
                 return self.speed
 
+            # hardcode first digit
+            pred = ""
+            sum_diff = 100000
+            for index in range(len(self.speed_numbers)):
+                diff = np.sum(np.absolute(img[:, :15] - self.speed_numbers[index]))
+                if diff < sum_diff:
+                    sum_diff = diff
+                    pred = index
+            speed += (str(pred))
+
             # pad the images to 28x28
-            digit1[:, 5:22] = img[:, :17]
-            digits.append(digit1)
+            # digit1[:, 5:20] = img[:, :17]
+            # digits.append(digit1)
             digit2[:, 7:20] = img[:, 17:30]
             digits.append(digit2)
             digit3[:, 8:20] = img[:, 30:42]
@@ -345,7 +376,7 @@ class Trackmania_env:
     def random_action(self):
         return np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
 
-    def load_cp_numbers(self):
+    def load_numbers(self):
         cp1_numbers = [np.load("../data/checkpoint_digits/zero1.npy"), np.load("../data/checkpoint_digits/one1.npy"),
                        np.load("../data/checkpoint_digits/two1.npy"), np.load("../data/checkpoint_digits/three1.npy"),
                        np.load("../data/checkpoint_digits/four1.npy"), np.load("../data/checkpoint_digits/five1.npy"),
@@ -358,7 +389,13 @@ class Trackmania_env:
                        np.load("../data/checkpoint_digits/six2.npy"), np.load("../data/checkpoint_digits/seven2.npy"),
                        np.load("../data/checkpoint_digits/eight2.npy"), np.load("../data/checkpoint_digits/nine2.npy")]
 
-        return cp1_numbers, cp2_numbers
+        speed_numbers = [np.load("../data/speed_digit/zero.npy"), np.load("../data/speed_digit/one.npy"),
+                         np.load("../data/speed_digit/two.npy"), np.load("../data/speed_digit/three.npy"),
+                         np.load("../data/speed_digit/four.npy"), np.load("../data/speed_digit/five.npy"),
+                         np.load("../data/speed_digit/six.npy"), np.load("../data/speed_digit/seven.npy"),
+                         np.load("../data/speed_digit/eight.npy"), np.load("../data/speed_digit/nine.npy")]
+
+        return cp1_numbers, cp2_numbers, speed_numbers
 
 
 class TM_actionspace():

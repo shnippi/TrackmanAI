@@ -30,9 +30,11 @@ train_loader = torch.utils.data.DataLoader(train_mnist, batch_size=batch_size, s
 test_loader = torch.utils.data.DataLoader(test_mnist, batch_size=batch_size, shuffle=True)
 
 net = LeNet_plus_plus().to(device)
+net.load_state_dict(torch.load("models/MNIST_classifier.model", map_location=device))
 net = net.to(device)
 
-optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
+# optimizer = torch.optim.Adam(net.parameters(), lr=learning_rate)
+optimizer = torch.optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 loss_fn = nn.CrossEntropyLoss()
 
 net.train()
@@ -46,8 +48,8 @@ for epoch in range(epochs):
         # plt.show()
 
         x, y = x.to(device), y.to(device)
-        print(x)
         pred = net(x)
+        # print(pred)
         loss = loss_fn(pred, y)
 
         total_loss += loss

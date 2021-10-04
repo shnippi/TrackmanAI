@@ -69,14 +69,10 @@ env = Trackmania_env()
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
 
-# Memory
-# memory = ReplayMemory(args.replay_size, args.seed)
-
 # Agent
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
 
-agent.load_checkpoint("checkpoints/sac_checkpoint_Trackmania_best", evaluate=True)
-# memory.load_buffer("checkpoints/sac_buffer_Trackmania_best")
+agent.load_checkpoint("checkpoints/sac_checkpoint_Trackmania_", evaluate=True)
 
 # print(len(memory.buffer))
 
@@ -100,8 +96,5 @@ for i_episode in itertools.count(1):
                 if 'P' in keys:
                     print("UNPAUSED")
                     break
-    # wandb.log({"avg_reward": episode_reward})
 
-    print("----------------------------------------")
-    print("Test Episodes: {}, Avg. Reward: {}".format(i_episode, round(episode_reward, 2)))
-    print("----------------------------------------")
+    print("Test Episode: {}, Avg. Reward: {}".format(i_episode, round(episode_reward, 2)))

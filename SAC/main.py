@@ -29,7 +29,7 @@ wandb.login()
 wandb.init(project="Trackmania")
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
-parser.add_argument('--env-name', default="Trackmania",
+parser.add_argument('--env-name', default="Trackmania", 
                     help='IDK what you want help with lol')
 parser.add_argument('--policy', default="Gaussian",
                     help='Policy Type: Gaussian | Deterministic (default: Gaussian)')
@@ -240,4 +240,3 @@ for i_episode in itertools.count(1):
 
         agent.save_checkpoint("Trackmania")
         memory.save_buffer("Trackmania")
- 
