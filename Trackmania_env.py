@@ -50,7 +50,7 @@ class Trackmania_env:
         self.stuck_counter = 0
         self.course_done_counter = 0
 
-        self.cp1_numbers, self.cp2_numbers, self.speed_numbers = self.load_numbers()
+        self.cp1_numbers, self.cp2_numbers, self.speed_numbers_first, self.speed_numbers_second = self.load_numbers()
         self.minus = np.load('E:/code/Python/Trackmania-RL/data/checkpoint_digits/minus.npy')
 
         self.update_time = 0
@@ -79,10 +79,10 @@ class Trackmania_env:
 
         done = False
 
-        ReleaseKey(D)
-        ReleaseKey(A)
-        ReleaseKey(W)
-        ReleaseKey(S)
+        # ReleaseKey(D)
+        # ReleaseKey(A)
+        # ReleaseKey(W)
+        # ReleaseKey(S)
 
         # # LEFT / STRAIGHT / RIGHT
         # if action[0] >= 0.5:
@@ -101,17 +101,17 @@ class Trackmania_env:
         #     pass
 
         # LEFT / STRAIGHT / RIGHT
-        if action[0] >= 0.5:
-            PressKey(D)
-        elif action[0] <= -0.5:
-            PressKey(A)
-
-        # ACCELERATE / IDLE
-        if action[1] >= 0:
-            PressKey(W)
-
-        else:
-            pass
+        # if action[0] >= 0.5:
+        #     PressKey(D)
+        # elif action[0] <= -0.5:
+        #     PressKey(A)
+        #
+        # # ACCELERATE / IDLE
+        # if action[1] >= 0:
+        #     PressKey(W)
+        #
+        # else:
+        #     pass
 
         # TODO: maybe train the model with printed digits instead of handwritten
         speed = self.get_speed()
@@ -286,11 +286,7 @@ class Trackmania_env:
             img = (img > 150) * img  # only take the pure white part of image (where the values are displayed)
 
             # save hardcoded digits
-
-            # file_name = 'E:/code/Python/Trackmania-RL/data/speed_digit/nine.npy'
-            # np.save(file_name, img[:, :15])
-            # cv2.imshow("result", img[:, :15])
-            # cv2.waitKey(0)
+            # self.save_numpy_array(img[:, 15:28], "nine1121")
 
             # check if minus
             diff = np.sum(np.absolute(img[:, :10] - self.minus))
@@ -299,20 +295,17 @@ class Trackmania_env:
                 return self.speed
 
             # hardcode first digit
-            pred = ""
-            sum_diff = 100000
-            for index in range(len(self.speed_numbers)):
-                diff = np.sum(np.absolute(img[:, :15] - self.speed_numbers[index]))
-                if diff < sum_diff:
-                    sum_diff = diff
-                    pred = index
-            speed += (str(pred))
+            speed += str(self.check_hardcoded_number(img[:, :15], self.speed_numbers_first))
+
+            # hardcode second digit
+            if np.amax(img[:, 15:28]) > 240:
+                speed += str(self.check_hardcoded_number(img[:, 15:28], self.speed_numbers_second))
 
             # pad the images to 28x28
-            # digit1[:, 5:20] = img[:, :17]
+            # digit1[:, 5:20] = img[:, :15]
             # digits.append(digit1)
-            digit2[:, 7:20] = img[:, 17:30]
-            digits.append(digit2)
+            # digit2[:, 7:20] = img[:, 15:28]
+            # digits.append(digit2)
             digit3[:, 8:20] = img[:, 30:42]
             digits.append(digit3)
 
@@ -389,13 +382,36 @@ class Trackmania_env:
                        np.load("../data/checkpoint_digits/six2.npy"), np.load("../data/checkpoint_digits/seven2.npy"),
                        np.load("../data/checkpoint_digits/eight2.npy"), np.load("../data/checkpoint_digits/nine2.npy")]
 
-        speed_numbers = [np.load("../data/speed_digit/zero.npy"), np.load("../data/speed_digit/one.npy"),
-                         np.load("../data/speed_digit/two.npy"), np.load("../data/speed_digit/three.npy"),
-                         np.load("../data/speed_digit/four.npy"), np.load("../data/speed_digit/five.npy"),
-                         np.load("../data/speed_digit/six.npy"), np.load("../data/speed_digit/seven.npy"),
-                         np.load("../data/speed_digit/eight.npy"), np.load("../data/speed_digit/nine.npy")]
+        speed_numbers_first = [np.load("../data/speed_digit/zero.npy"), np.load("../data/speed_digit/one.npy"),
+                               np.load("../data/speed_digit/two.npy"), np.load("../data/speed_digit/three.npy"),
+                               np.load("../data/speed_digit/four.npy"), np.load("../data/speed_digit/five.npy"),
+                               np.load("../data/speed_digit/six.npy"), np.load("../data/speed_digit/seven.npy"),
+                               np.load("../data/speed_digit/eight.npy"), np.load("../data/speed_digit/nine.npy")]
 
-        return cp1_numbers, cp2_numbers, speed_numbers
+        speed_numbers_second = [np.load("../data/speed_digit/zero1.npy"), np.load("../data/speed_digit/one1.npy"),
+                                np.load("../data/speed_digit/two1.npy"), np.load("../data/speed_digit/three1.npy"),
+                                np.load("../data/speed_digit/four1.npy"), np.load("../data/speed_digit/five1.npy"),
+                                np.load("../data/speed_digit/six1.npy"), np.load("../data/speed_digit/seven1.npy"),
+                                np.load("../data/speed_digit/eight1.npy"), np.load("../data/speed_digit/nine1.npy")]
+
+        return cp1_numbers, cp2_numbers, speed_numbers_first, speed_numbers_second
+
+    def save_numpy_array(self, img, name):
+        file_name = 'E:/code/Python/Trackmania-RL/data/speed_digit/{}.npy'.format(name)
+        np.save(file_name, img)
+        cv2.imshow("result", img)
+        cv2.waitKey(0)
+
+    def check_hardcoded_number(self, img, hardcoded):
+        pred = ""
+        sum_diff = 100000
+        for index in range(len(hardcoded)):
+            diff = np.sum(np.absolute(img - hardcoded[index]))
+            if diff < sum_diff:
+                sum_diff = diff
+                pred = index
+
+        return pred
 
 
 class TM_actionspace():
