@@ -322,6 +322,7 @@ class Trackmania_env:
 
             return self.speed
 
+    # TODO: this doesnt get used anymore
     def get_time(self):
 
         mon = {'left': 350, 'top': 575, 'width': 100, 'height': 40}
