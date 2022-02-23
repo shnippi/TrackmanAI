@@ -14,3 +14,6 @@ done via simple OCR. I implemented this from scratch since it was 10x faster tha
 Disclaimer: There are about a million things that can (and maybe will) be improved. This is a work in progress.
 Future focus will be the inclusion of more biomes and tracks, and proper reward penalties. If you have any improvements or questions
 feel free to shoot me a message.
+
+https://user-images.githubusercontent.com/45588658/155300990-b7b19dfd-5a87-4399-88d6-fc2ecdfa7c70.mp4
+
