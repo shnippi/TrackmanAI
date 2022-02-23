@@ -79,10 +79,10 @@ class Trackmania_env:
 
         done = False
 
-        # ReleaseKey(D)
-        # ReleaseKey(A)
-        # ReleaseKey(W)
-        # ReleaseKey(S)
+        ReleaseKey(D)
+        ReleaseKey(A)
+        ReleaseKey(W)
+        ReleaseKey(S)
 
         # # LEFT / STRAIGHT / RIGHT
         # if action[0] >= 0.5:
@@ -101,26 +101,31 @@ class Trackmania_env:
         #     pass
 
         # LEFT / STRAIGHT / RIGHT
-        # if action[0] >= 0.5:
-        #     PressKey(D)
-        # elif action[0] <= -0.5:
-        #     PressKey(A)
-        #
-        # # ACCELERATE / IDLE
-        # if action[1] >= 0:
-        #     PressKey(W)
-        #
-        # else:
-        #     pass
+        if action[0] >= 0.5:
+            PressKey(D)
+        elif action[0] <= -0.5:
+            PressKey(A)
 
-        # TODO: maybe train the model with printed digits instead of handwritten
+        # ACCELERATE / IDLE
+        if action[1] >= 0:
+            PressKey(W)
+
+        else:
+            pass
+
         speed = self.get_speed()
         cp, cp_reached = self.get_cp()
 
         z = np.array(self.get_state_rep())
         # print(z)
 
-        reward = (speed / 150) ** 2 - 0.15
+        # TODO: new rewardfunction: always negative, this gives incentive to finish the track asap
+        # reward = (speed / 150) ** 2 - 0.15
+        reward = 0.7*(speed / 150) ** 2 - 2
+
+        if speed == 0:
+            reward = -5
+
         if cp_reached:
             reward += 20
             # print("Checkpoint! :D")
@@ -145,6 +150,7 @@ class Trackmania_env:
             reward = 10000000 / ((time.time() - self.start_time) ** 2)
 
         # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
+        print("speed: " + str(speed) + " ; reward: " + str(reward))
         # print(1/(time.time()-self.update_time))
         # self.update_time = time.time()
 
@@ -183,7 +189,7 @@ class Trackmania_env:
         # plt.imshow(output[0][0].to("cpu"), "gray")
         # plt.show()
 
-        # self.show_reconstruction(screen)
+        self.show_reconstruction(screen)
 
         z = self.VAE_net.get_z(screen)
         z = torch.squeeze(z)
@@ -239,23 +245,8 @@ class Trackmania_env:
             #         cp.append(str(pred))
 
             # using pixel differences
-            pred = ""
-            sum_diff = 100000
-            for index in range(len(self.cp1_numbers)):
-                diff = np.sum(np.absolute(cp1 - self.cp1_numbers[index]))
-                if diff < sum_diff:
-                    sum_diff = diff
-                    pred = index
-            cp.append(str(pred))
-
-            pred = ""
-            sum_diff = 100000
-            for index in range(len(self.cp2_numbers)):
-                diff = np.sum(np.absolute(cp2 - self.cp2_numbers[index]))
-                if diff < sum_diff:
-                    sum_diff = diff
-                    pred = index
-            cp.append(str(pred))
+            cp.append(str(self.check_hardcoded_number(cp1, self.cp1_numbers)))
+            cp.append(str(self.check_hardcoded_number(cp2, self.cp2_numbers)))
 
             # print(cp)
             # print(self.cp_predict_counter)
@@ -285,9 +276,6 @@ class Trackmania_env:
             img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
             img = (img > 150) * img  # only take the pure white part of image (where the values are displayed)
 
-            # save hardcoded digits
-            # self.save_numpy_array(img[:, 15:28], "nine1121")
-
             # check if minus
             diff = np.sum(np.absolute(img[:, :10] - self.minus))
             if diff < 3000:
@@ -306,8 +294,11 @@ class Trackmania_env:
             # digits.append(digit1)
             # digit2[:, 7:20] = img[:, 15:28]
             # digits.append(digit2)
-            digit3[:, 8:20] = img[:, 30:42]
+            digit3[:, 8:20] = img[:, 28:40]
             digits.append(digit3)
+
+            # cv2.imshow("result", img[:, 28:40])
+            # cv2.waitKey(0)
 
             # read speed with MNIST model
             for digit in digits:
@@ -363,7 +354,7 @@ class Trackmania_env:
 
         recon = self.VAE_net.generate(screen)
         recon = np.array(recon.detach().to("cpu"))
-        cv2.imshow('window', cv2.resize(recon[0][0], (500, 500)))
+        cv2.imshow('Latent Space Representation - "what the agent sees"', cv2.resize(recon[0][0], (500, 500)))
         cv2.waitKey(10)
 
     def random_action(self):

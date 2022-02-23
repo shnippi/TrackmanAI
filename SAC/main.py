@@ -20,8 +20,8 @@ import msvcrt as m
 # TODO: PULL REQUEST
 # TODO: YOUTUBE VIDEO?
 # TODO: OCR THE MINUS SIGN BEFORE SPEED, THEN USE THIS AS RESET CONDITION
-# TODO: speed still gets read incorrectly
 # TODO: sometimes reward is in the millions????
+# TODO: CHECKPOINTS NOW LOOK DIFFERENT, 8 GETS RECOGNIZED AS 3
 
 
 load_dotenv()
@@ -109,9 +109,9 @@ memory.load_buffer("checkpoints/sac_buffer_Trackmania_")
 print(len(memory.buffer))
 
 # tensorboard --logdir=SAC/runs --port=6006
-writer = SummaryWriter(
-    'runs/{}_SAC_{}_{}_{}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), args.env_name,
-                                  args.policy, "autotune" if args.automatic_entropy_tuning else ""))
+# writer = SummaryWriter(
+#     'runs/{}_SAC_{}_{}_{}'.format(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"), args.env_name,
+#                                   args.policy, "autotune" if args.automatic_entropy_tuning else ""))
 
 # Training Loop
 total_numsteps = 0
@@ -158,11 +158,11 @@ for i_episode in itertools.count(1):
                 wandb.log({"ent_loss": ent_loss})
                 wandb.log({"alpha": alpha})
 
-                writer.add_scalar('loss/critic_1', critic_1_loss, updates)
-                writer.add_scalar('loss/critic_2', critic_2_loss, updates)
-                writer.add_scalar('loss/policy', policy_loss, updates)
-                writer.add_scalar('loss/entropy_loss', ent_loss, updates)
-                writer.add_scalar('entropy_temprature/alpha', alpha, updates)
+                # writer.add_scalar('loss/critic_1', critic_1_loss, updates)
+                # writer.add_scalar('loss/critic_2', critic_2_loss, updates)
+                # writer.add_scalar('loss/policy', policy_loss, updates)
+                # writer.add_scalar('loss/entropy_loss', ent_loss, updates)
+                # writer.add_scalar('entropy_temprature/alpha', alpha, updates)
                 updates += 1
 
         next_state, reward, done, _ = env.step(action)  # Step
@@ -187,7 +187,7 @@ for i_episode in itertools.count(1):
     if total_numsteps > args.num_steps:
         break
 
-    writer.add_scalar('reward/train', episode_reward, i_episode)
+    # writer.add_scalar('reward/train', episode_reward, i_episode)
     print("Episode: {}, total numsteps: {}, episode steps: {}, reward: {}".format(i_episode, total_numsteps,
                                                                                   episode_steps,
                                                                                   round(episode_reward, 2)))
@@ -220,7 +220,7 @@ for i_episode in itertools.count(1):
         avg_reward /= episodes
 
         wandb.log({"avg_reward": avg_reward})
-        writer.add_scalar('avg_reward/test', avg_reward, i_episode)
+        # writer.add_scalar('avg_reward/test', avg_reward, i_episode)
 
         print("----------------------------------------")
         print("Test Episodes: {}, Avg. Reward: {}".format(episodes, round(avg_reward, 2)))
