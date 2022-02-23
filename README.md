@@ -1,4 +1,4 @@
-#TrackmanAI
+# TrackmanAI
 
 A purely **pixel based** Deep Reinforcement Learning Agent for the the racing game Trackmania.
 ### Features
