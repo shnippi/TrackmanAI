@@ -13,9 +13,9 @@ done via simple OCR. I implemented this from scratch since it was 10x faster tha
 Left Side of the screen is the actual game that the Agent is controlling, the right side shows the reconstructed image from the VAE's latent representation of the current frame. This is "what the agent sees". The video was taken after 6 hours of training.
 
 
-https://user-images.githubusercontent.com/45588658/155304540-5427fee6-3908-4657-8106-c644224c5418.mp4
 
 
+https://user-images.githubusercontent.com/45588658/156769080-b8507d2c-4537-4c0c-994f-46e3b5675128.mp4
 
 
 Disclaimer: There are about a million things that can (and maybe will) be improved. This is a work in progress.
