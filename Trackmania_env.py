@@ -9,6 +9,7 @@ from directkeys import PressKey, ReleaseKey
 import random
 import pytesseract
 import sys
+import vgamepad as vg
 
 pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
 
@@ -26,8 +27,10 @@ z_dim = 33
 
 class Trackmania_env:
 
-    def __init__(self):
+    def __init__(self, mode="keyboard"):
+        self.mode = mode
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
         self.VAE_model_file_name = "../models/VAE_64_100eps_vanilla_recon_game.model"
         self.VAE_net = VanillaVAE()
         self.VAE_net.load_state_dict(torch.load(self.VAE_model_file_name, map_location=self.device))
@@ -55,7 +58,13 @@ class Trackmania_env:
 
         self.update_time = 0
 
+        self.gamepad = vg.VX360Gamepad()
+
+        # self.tmrl_env = get_environment()
+        # self.tmrl_env.reset()
+
     def reset(self):
+
         # reset
         PressKey(BACKSPACE)
         ReleaseKey(BACKSPACE)
@@ -79,41 +88,53 @@ class Trackmania_env:
 
         done = False
 
-        ReleaseKey(D)
-        ReleaseKey(A)
-        ReleaseKey(W)
-        ReleaseKey(S)
+        if self.mode == "controller":
 
-        # # LEFT / STRAIGHT / RIGHT
-        # if action[0] >= 0.5:
-        #     PressKey(D)
-        # elif action[0] <= -0.5:
-        #     PressKey(A)
-        #
-        # # ACCELERATE / IDLE / BREAK
-        # if action[1] >= 0:
-        #     PressKey(W)
-        # elif action[1] <= -0.5:
-        #     PressKey(S)
-        #     PressKey(W)
-        #
-        # else:
-        #     pass
+            self.gamepad.reset()
+            self.gamepad.update()
 
-        # LEFT / STRAIGHT / RIGHT
-        if action[0] >= 0.5:
-            PressKey(D)
-        elif action[0] <= -0.5:
-            PressKey(A)
+            self.gamepad.right_trigger_float(value_float=action[0])
+            # self.gamepad.left_trigger_float(value_float=abs(action[0]))
+            self.gamepad.left_joystick_float(x_value_float=action[1], y_value_float=0.0)
+            self.gamepad.update()
 
-        # ACCELERATE / IDLE
-        if action[1] >= 0:
-            PressKey(W)
+        elif self.mode == "keyboard":
+            ReleaseKey(D)
+            ReleaseKey(A)
+            ReleaseKey(W)
+            ReleaseKey(S)
 
-        else:
-            pass
+            # # LEFT / STRAIGHT / RIGHT
+            # if action[0] >= 0.5:
+            #     PressKey(D)
+            # elif action[0] <= -0.5:
+            #     PressKey(A)
+            #
+            # # ACCELERATE / IDLE / BREAK
+            # if action[1] >= 0:
+            #     PressKey(W)
+            # elif action[1] <= -0.5:
+            #     PressKey(S)
+            #     PressKey(W)
+            #
+            # else:
+            #     pass
+
+            # LEFT / STRAIGHT / RIGHT
+            if action[0] >= 0.5:
+                PressKey(D)
+            elif action[0] <= -0.5:
+                PressKey(A)
+
+            # ACCELERATE / IDLE
+            if action[1] >= 0:
+                PressKey(W)
+
+            else:
+                pass
 
         speed = self.get_speed()
+
         cp, cp_reached = self.get_cp()
 
         z = np.array(self.get_state_rep())
@@ -121,7 +142,7 @@ class Trackmania_env:
 
         # TODO: new rewardfunction: always negative, this gives incentive to finish the track asap
         # reward = (speed / 150) ** 2 - 0.15
-        reward = 0.7*(speed / 150) ** 2 - 2
+        reward = 0.7 * (speed / 150) ** 2 - 2
 
         if speed == 0:
             reward = -5
@@ -189,7 +210,7 @@ class Trackmania_env:
         # plt.imshow(output[0][0].to("cpu"), "gray")
         # plt.show()
 
-        self.show_reconstruction(screen)
+        # self.show_reconstruction(screen)
 
         z = self.VAE_net.get_z(screen)
         z = torch.squeeze(z)

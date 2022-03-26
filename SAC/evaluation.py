@@ -15,6 +15,7 @@ from getkeys import key_check
 import wandb
 from dotenv import load_dotenv
 import msvcrt as m
+# from tmrl import get_environment
 
 # load_dotenv()
 # wandb.login()
@@ -64,7 +65,7 @@ for i in list(range(3))[::-1]:
     time.sleep(1)
 
 # Environment
-env = Trackmania_env()
+env = Trackmania_env(mode="controller")
 
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)

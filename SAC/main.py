@@ -16,6 +16,7 @@ import wandb
 from dotenv import load_dotenv
 import msvcrt as m
 
+# TODO: USE THE STEP FUNCTION FROM TMRL
 # TODO: implement if <-0.5 if presses w and s together to break and compare this with only break
 # TODO: PULL REQUEST
 # TODO: YOUTUBE VIDEO?
@@ -29,7 +30,7 @@ wandb.login()
 wandb.init(project="Trackmania")
 
 parser = argparse.ArgumentParser(description='PyTorch Soft Actor-Critic Args')
-parser.add_argument('--env-name', default="Trackmania", 
+parser.add_argument('--env-name', default="Trackmania",
                     help='IDK what you want help with lol')
 parser.add_argument('--policy', default="Gaussian",
                     help='Policy Type: Gaussian | Deterministic (default: Gaussian)')
@@ -92,7 +93,8 @@ for i in list(range(3))[::-1]:
     time.sleep(1)
 
 # Environment
-env = Trackmania_env()
+mode = "controller"
+env = Trackmania_env(mode=mode)
 
 torch.manual_seed(args.seed)
 np.random.seed(args.seed)
@@ -103,7 +105,7 @@ memory = ReplayMemory(args.replay_size, args.seed)
 # Agent
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
 
-agent.load_checkpoint("checkpoints/sac_checkpoint_Trackmania_")
+agent.load_checkpoint("checkpoints/sac_checkpoint_Trackmania_best")
 memory.load_buffer("checkpoints/sac_buffer_Trackmania_")
 
 print(len(memory.buffer))
@@ -227,7 +229,7 @@ for i_episode in itertools.count(1):
         print("----------------------------------------")
 
         if avg_reward > best_reward:
-            agent.save_checkpoint("Trackmania", suffix="best")
+            agent.save_checkpoint("Trackmania", suffix=mode + "_best")
             best_reward = avg_reward
             load_from_best_cntr = 0
         else:
