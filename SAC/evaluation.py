@@ -74,7 +74,7 @@ np.random.seed(args.seed)
 agent = SAC(env.observation_space.shape[0], env.action_space, args)
 
 # agent.load_checkpoint("checkpoints/sac_checkpoint_Trackmania_best", evaluate=True)
-agent.load_checkpoint("../versions/STABLE_BASELINE/sac_checkpoint_Trackmania_best", evaluate=True)
+agent.load_checkpoint("../versions/STABLE_BASELINE_KEYBOARD/sac_checkpoint_Trackmania_best", evaluate=True)
 
 
 # print(len(memory.buffer))

@@ -11,7 +11,7 @@ import pytesseract
 import sys
 import vgamepad as vg
 
-pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
+# pytesseract.pytesseract.tesseract_cmd = "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
 
 # key hexcodes
 W = 0x11
@@ -151,6 +151,7 @@ class Trackmania_env:
             reward += 20
             # print("Checkpoint! :D")
 
+        # TODO: maybe decrease the stuck counter when its not on the last checkpoint?
         if speed < 5:
             self.stuck_counter += 1
             if self.stuck_counter > 300:  # ATTENTION: this needs to be longer than the end screen after completion
@@ -171,7 +172,7 @@ class Trackmania_env:
             reward = 10000000 / ((time.time() - self.start_time) ** 2)
 
         # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
-        print("speed: " + str(speed) + " ; reward: " + str(reward))
+        # print("speed: " + str(speed) + " ; reward: " + str(reward))
         # print(1/(time.time()-self.update_time))
         # self.update_time = time.time()
 
@@ -248,6 +249,13 @@ class Trackmania_env:
             cp2[:, 3:26] = img[:, 37:]
             cp_list.append(cp2)
 
+            # cv2.imshow("result", self.cp2_numbers[0])
+            # cv2.waitKey(0)
+            # cv2.imshow("result", cp2)
+            # cv2.waitKey(0)
+
+            # self.save_numpy_array(cp2, "checkpoint_digits/zero2")
+
             # using mnist model
             # for digit in cp_list:
             #     if np.amax(digit) > 240:
@@ -321,6 +329,7 @@ class Trackmania_env:
             # cv2.imshow("result", img[:, 28:40])
             # cv2.waitKey(0)
 
+            # TODO: currently only using ocr for last digit
             # read speed with MNIST model
             for digit in digits:
                 if np.amax(digit) > 240:
@@ -409,8 +418,9 @@ class Trackmania_env:
 
         return cp1_numbers, cp2_numbers, speed_numbers_first, speed_numbers_second
 
+    # for saving hardcoded stuff
     def save_numpy_array(self, img, name):
-        file_name = 'E:/code/Python/Trackmania-RL/data/speed_digit/{}.npy'.format(name)
+        file_name = 'E:/code/Python/Trackmania-RL/data/{}.npy'.format(name)
         np.save(file_name, img)
         cv2.imshow("result", img)
         cv2.waitKey(0)
