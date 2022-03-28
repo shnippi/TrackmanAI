@@ -45,7 +45,7 @@ class Trackmania_env:
         self.action_space = TM_actionspace()
 
         # save last measured checkpoint and speed such that if the OCR fails we just take last measured
-        self.cp = [""]
+        self.cp = ["none", "none"]
         self.cp_predict_counter = 0
         self.cp_predict = [""]
         self.speed = 0
@@ -69,7 +69,7 @@ class Trackmania_env:
         PressKey(BACKSPACE)
         ReleaseKey(BACKSPACE)
 
-        self.cp = [""]
+        self.cp = ["none", "none"]
         self.cp_predict_counter = 0
         self.speed = 0
         self.start_time = time.time()
@@ -141,20 +141,22 @@ class Trackmania_env:
         # print(z)
 
         # TODO: new rewardfunction: always negative, this gives incentive to finish the track asap
-        # reward = (speed / 150) ** 2 - 0.15
-        reward = 0.7 * (speed / 150) ** 2 - 2
+        reward = (speed / 150) ** 2 - 0.15
+        # reward = 0.7 * (speed / 150) ** 2 - 2
 
         if speed == 0:
-            reward = -5
+            reward = -3
 
         if cp_reached:
-            reward += 20
+            reward += 50
             # print("Checkpoint! :D")
 
-        # TODO: maybe decrease the stuck counter when its not on the last checkpoint?
         if speed < 5:
             self.stuck_counter += 1
-            if self.stuck_counter > 300:  # ATTENTION: this needs to be longer than the end screen after completion
+            # ATTENTION: this needs to be longer than the end screen after completion, or not on the last CP
+            if (self.cp[0] != "none" and int(self.cp[0]) < int(self.cp[1]) - 1 and self.stuck_counter > 50) \
+                    or self.stuck_counter > 300:
+
                 self.stuck_counter = 0
                 done = True
                 reward = min(- 50 + time.time() - self.start_time, 0)
@@ -173,6 +175,7 @@ class Trackmania_env:
 
         # print("speed: " + str(speed) + " ; cp: " + str(cp) + " ; reward: " + str(reward))
         # print("speed: " + str(speed) + " ; reward: " + str(reward))
+        # print(self.cp)
         # print(1/(time.time()-self.update_time))
         # self.update_time = time.time()
 
@@ -281,7 +284,7 @@ class Trackmania_env:
             # print(self.cp_predict_counter)
 
             # TODO: 0 doesnt get updated here
-            if cp[0] != "" and cp[0] != "0" and cp != self.cp:
+            if cp != self.cp:
                 self.cp_predict_counter += 1
                 if self.cp_predict_counter > 10:
                     # print("checkpoint!")
